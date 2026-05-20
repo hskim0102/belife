@@ -28,7 +28,7 @@ export default function IntroPage() {
         <h1 className="text-4xl font-black mb-6">아름다운생명사랑은</h1>
         <p className="text-text-subtle leading-relaxed mb-16">
           의료계층을 위한 보건의료문서와 교육 및 연구사업을 통하여 존엄한 생명의 아름다움을 꽃 피우기 위한 생명사랑운동단체입니다.
-          2006년 6월 20일 「프레임비고」로 창립하였으며 "한 생명이 천하보다 소중하다"는 생명사랑의 정신을 실현하고자 합니다.
+          2006년 6월 20일 「프레임비고」로 창립하였으며 &ldquo;한 생명이 천하보다 소중하다&rdquo;는 생명사랑의 정신을 실현하고자 합니다.
         </p>
 
         <div className="grid md:grid-cols-2 gap-10">

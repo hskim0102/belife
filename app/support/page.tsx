@@ -5,6 +5,8 @@ import { SectionLabel } from '@/components/ui/SectionLabel'
 
 export const metadata: Metadata = { title: '후원·참여' }
 
+export const revalidate = 60
+
 export default async function SupportPage() {
   const settings = await getSiteSettings()
 
@@ -38,7 +40,7 @@ export default async function SupportPage() {
               의료인·예비의료인이라면 생명사랑의료학교 및 의료봉사 활동에 참여하실 수 있습니다.
             </p>
             <a
-              href={`mailto:${settings?.contactEmail ?? 'belife@belife.org'}`}
+              href={`mailto:${settings?.contactEmail || 'belife@belife.org'}`}
               className="inline-block bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-primary-dark transition-colors"
             >
               이메일로 문의하기

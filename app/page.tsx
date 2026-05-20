@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: '저소득 어르신, 취약계층 어린이, 이주민, 해외 빈민을 위한 의료복지 비영리단체',
 }
 
+export const revalidate = 60
+
 export default async function HomePage() {
   const [programs, posts, stats] = await Promise.all([
     getAllPrograms(),

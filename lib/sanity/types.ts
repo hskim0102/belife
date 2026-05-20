@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from '@portabletext/types'
+
 export interface Post {
   _id: string
   title: string
@@ -6,7 +8,7 @@ export interface Post {
   publishedAt: string
   thumbnail?: { asset: { _ref: string } }
   excerpt?: string
-  body?: unknown[]
+  body?: PortableTextBlock[]
 }
 
 export interface Program {
@@ -17,7 +19,7 @@ export interface Program {
   order?: number
   thumbnail?: { asset: { _ref: string } }
   description: string
-  body?: unknown[]
+  body?: PortableTextBlock[]
 }
 
 export interface Milestone {

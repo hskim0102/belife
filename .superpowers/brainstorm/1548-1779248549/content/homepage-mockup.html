@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>belife 홈페이지 목업</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f9fafb; color: #1a1a1a; }
+
+  /* NAV */
+  nav { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; color: #16a34a; }
+  .logo-flower { font-size: 22px; }
+  .nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; color: #374151; }
+  .nav-links span { cursor: pointer; padding: 4px 0; border-bottom: 2px solid transparent; }
+  .nav-links span:hover { color: #16a34a; border-bottom-color: #16a34a; }
+  .nav-cta { background: #16a34a; color: #fff; padding: 8px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #166534 100%); min-height: 520px; display: flex; align-items: center; padding: 80px 40px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .hero-content { max-width: 560px; position: relative; }
+  .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); color: #bbf7d0; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 999px; margin-bottom: 20px; letter-spacing: 1px; }
+  .hero h1 { font-size: 42px; font-weight: 900; color: #fff; line-height: 1.25; margin-bottom: 20px; }
+  .hero h1 em { color: #4ade80; font-style: normal; }
+  .hero p { color: #bbf7d0; font-size: 16px; line-height: 1.8; margin-bottom: 32px; }
+  .hero-btns { display: flex; gap: 12px; }
+  .btn-primary { background: #fff; color: #16a34a; padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .btn-secondary { background: transparent; color: #fff; padding: 14px 28px; border-radius: 999px; font-weight: 600; font-size: 15px; cursor: pointer; border: 2px solid rgba(255,255,255,0.4); }
+  .hero-visual { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 16px; opacity: 0.85; }
+  .hero-photo { width: 220px; height: 140px; border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .hero-photo.shift { margin-left: 40px; }
+
+  /* MISSION */
+  .mission { background: #fff; padding: 72px 40px; text-align: center; }
+  .section-label { font-size: 12px; font-weight: 700; color: #16a34a; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .mission h2 { font-size: 30px; font-weight: 800; margin-bottom: 16px; }
+  .mission p { color: #6b7280; max-width: 560px; margin: 0 auto 48px; font-size: 16px; line-height: 1.8; }
+  .mission-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 900px; margin: 0 auto; }
+  .mission-card { background: #f0fdf4; border-radius: 16px; padding: 28px 20px; text-align: left; border: 1px solid #bbf7d0; }
+  .mission-icon { font-size: 28px; margin-bottom: 12px; }
+  .mission-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #14532d; }
+  .mission-card p { font-size: 13px; color: #6b7280; line-height: 1.6; }
+
+  /* PROGRAMS */
+  .programs { background: #f0fdf4; padding: 72px 40px; }
+  .programs h2 { font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+  .programs > p { text-align: center; color: #6b7280; margin-bottom: 40px; }
+  .program-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1100px; margin: 0 auto; }
+  .program-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .program-thumb { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+  .program-card-body { padding: 16px; }
+  .program-card-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .program-card-body p { font-size: 12px; color: #9ca3af; line-height: 1.5; }
+  .program-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; }
+  .tag-domestic { background: #dcfce7; color: #16a34a; }
+  .tag-overseas { background: #dbeafe; color: #2563eb; }
+  .tag-edu { background: #fef9c3; color: #a16207; }
+
+  /* IMPACT */
+  .impact { background: #16a34a; padding: 64px 40px; text-align: center; }
+  .impact h2 { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 48px; }
+  .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; max-width: 900px; margin: 0 auto; }
+  .impact-item { }
+  .impact-number { font-size: 44px; font-weight: 900; color: #fff; line-height: 1; }
+  .impact-number span { font-size: 22px; }
+  .impact-label { font-size: 13px; color: #bbf7d0; margin-top: 8px; }
+
+  /* NEWS */
+  .news { background: #fff; padding: 72px 40px; }
+  .news-header { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 32px; }
+  .news-header h2 { font-size: 26px; font-weight: 800; }
+  .news-more { font-size: 13px; color: #16a34a; font-weight: 600; cursor: pointer; }
+  .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+  .news-card { border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+  .news-thumb { height: 160px; background: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .news-body { padding: 16px; }
+  .news-date { font-size: 11px; color: #9ca3af; margin-bottom: 6px; }
+  .news-body h4 { font-size: 14px; font-weight: 700; line-height: 1.5; }
+
+  /* CTA */
+  .cta { background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 80px 40px; text-align: center; }
+  .cta h2 { font-size: 32px; font-weight: 900; margin-bottom: 16px; }
+  .cta p { color: #6b7280; font-size: 16px; margin-bottom: 40px; }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; }
+  .cta-btn-green { background: #16a34a; color: #fff; padding: 16px 36px; border-radius: 999px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .cta-btn-outline { background: transparent; color: #16a34a; padding: 16px 36px; border-radius: 999px; font-size: 16px; font-weight: 700; cursor: pointer; border: 2px solid #16a34a; }
+
+  /* FOOTER */
+  footer { background: #052e16; color: #6b7280; padding: 40px; font-size: 13px; line-height: 1.8; }
+  .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 40px; }
+  .footer-logo { font-size: 18px; font-weight: 800; color: #4ade80; margin-bottom: 8px; }
+  .footer-info { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-flower">🌸</span>
+    <span>아름다운생명사랑</span>
+  </div>
+  <div class="nav-links">
+    <span>소개</span>
+    <span>사업</span>
+    <span>소식</span>
+    <span>후원·참여</span>
+    <span>문의</span>
+  </div>
+  <div class="nav-cta">후원하기</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">창립 20주년 · 2006–2025</div>
+    <h1>한 생명을<br><em>천하와 같이</em><br>사랑합니다</h1>
+    <p>저소득 어르신, 취약계층 어린이, 이주민,<br>그리고 해외 빈민까지 — 생명을 사랑하는 의료로<br>함께합니다.</p>
+    <div class="hero-btns">
+      <div class="btn-primary">후원하기</div>
+      <div class="btn-secondary">활동 보기</div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-photo">🏥</div>
+    <div class="hero-photo shift">🌏</div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission">
+  <div class="section-label">Our Mission</div>
+  <h2>우리가 섬기는 이웃들</h2>
+  <p>아름다운생명사랑은 의료의 사각지대에 놓인 이웃들 곁에서<br>생명을 사랑하는 마음으로 일합니다.</p>
+  <div class="mission-grid">
+    <div class="mission-card">
+      <div class="mission-icon">👴</div>
+      <h4>저소득 어르신</h4>
+      <p>가정방문 보건의료, 건강관리 서비스</p>
+    </div>
+    <div class="mission-card">
+      <div class="mission-icon">🧒</div>
+      <h4>취약계층 어린이</h4>
+      <p>아동 치과치료 연계, 건강 지원</p>
+    </div>
+    <div class="mission-card">
+      <div class="mission-icon">🌏</div>
+      <h4>해외 빈민</h4>
+      <p>필리핀 마닐라 빈민지역 의료·상비약 지원</p>
+    </div>
+    <div class="mission-card">
+      <div class="mission-icon">🏠</div>
+      <h4>이주민·결혼이주여성</h4>
+      <p>의료 접근성 지원, 건강관리</p>
+    </div>
+    <div class="mission-card">
+      <div class="mission-icon">🕊️</div>
+      <h4>북한이탈주민</h4>
+      <p>건강 회복과 정착 지원</p>
+    </div>
+    <div class="mission-card">
+      <div class="mission-icon">📚</div>
+      <h4>의료 교육·연구</h4>
+      <p>생명사랑의료학교 운영, 예비의료인 교육</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section class="programs">
+  <div class="section-label">Programs</div>
+  <h2>주요 사업</h2>
+  <p>국내외에서 다양한 방식으로 생명사랑을 실천합니다</p>
+  <div class="program-cards">
+    <div class="program-card">
+      <div class="program-thumb" style="background:#f0fdf4">🏡</div>
+      <div class="program-card-body">
+        <div class="program-tag tag-domestic">국내</div>
+        <h4>가정방문 보건의료</h4>
+        <p>강북구 독거어르신 방문 건강관리</p>
+      </div>
+    </div>
+    <div class="program-card">
+      <div class="program-thumb" style="background:#f0fdf4">🦷</div>
+      <div class="program-card-body">
+        <div class="program-tag tag-domestic">국내</div>
+        <h4>아동 치과치료 지원</h4>
+        <p>지역아동센터 아동 고비용 치과치료</p>
+      </div>
+    </div>
+    <div class="program-card">
+      <div class="program-thumb" style="background:#eff6ff">🌺</div>
+      <div class="program-card-body">
+        <div class="program-tag tag-overseas">해외</div>
+        <h4>필리핀 의료 지원</h4>
+        <p>마닐라 빈민지역 상비약 보급·의료 지원</p>
+      </div>
+    </div>
+    <div class="program-card">
+      <div class="program-thumb" style="background:#fefce8">🎓</div>
+      <div class="program-card-body">
+        <div class="program-tag tag-edu">교육</div>
+        <h4>생명사랑의료학교</h4>
+        <p>예비 의료인 대상 강의·실습 교육</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="impact">
+  <h2>숫자로 보는 아름다운생명사랑</h2>
+  <div class="impact-grid">
+    <div class="impact-item">
+      <div class="impact-number">20<span>년</span></div>
+      <div class="impact-label">활동 역사 (2006~)</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-number">4<span>기</span></div>
+      <div class="impact-label">생명사랑의료학교 (2025)</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-number">400<span>+가구</span></div>
+      <div class="impact-label">필리핀 빈민 지원</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-number">50<span>명+</span></div>
+      <div class="impact-label">이주민 독감예방접종</div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="news">
+  <div class="news-header">
+    <h2>최근 소식</h2>
+    <span class="news-more">전체 보기 →</span>
+  </div>
+  <div class="news-grid">
+    <div class="news-card">
+      <div class="news-thumb">📋</div>
+      <div class="news-body">
+        <div class="news-date">2025. 05. 15</div>
+        <h4>생명사랑의료학교 4강 성황리 개최 — 강북교육복지센터</h4>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="news-thumb">🌏</div>
+      <div class="news-body">
+        <div class="news-date">2025. 06. 12</div>
+        <h4>필리핀 마닐라 3개 지역 400가구 상비약 보급 완료</h4>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="news-thumb">📄</div>
+      <div class="news-body">
+        <div class="news-date">2025. 08. 01</div>
+        <h4>아생 20년 역사기록 & 사업·운영 매뉴얼 완성</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>함께 생명을 사랑해요 💚</h2>
+  <p>후원 한 번이 한 생명을 살립니다.<br>의료인이라면 봉사로, 누구든 후원으로 함께할 수 있습니다.</p>
+  <div class="cta-btns">
+    <div class="cta-btn-green">후원하기</div>
+    <div class="cta-btn-outline">봉사 신청하기</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-info">
+      <div class="footer-logo">🌸 아름다운생명사랑</div>
+      <div>공익법인(구,지정기부금단체) · 대표: 김영진</div>
+      <div>서울특별시 강북구 · belife.org</div>
+      <div style="margin-top:8px;color:#4ade80">belife = beautiful + life · 아름다운 생명</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

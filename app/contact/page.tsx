@@ -4,6 +4,8 @@ import { SectionLabel } from '@/components/ui/SectionLabel'
 
 export const metadata: Metadata = { title: '문의' }
 
+export const revalidate = 60
+
 export default async function ContactPage() {
   const settings = await getSiteSettings()
 

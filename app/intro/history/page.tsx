@@ -4,6 +4,8 @@ import { SectionLabel } from '@/components/ui/SectionLabel'
 
 export const metadata: Metadata = { title: '발자취' }
 
+export const revalidate = 60
+
 export default async function HistoryPage() {
   const milestones = await getMilestones()
 

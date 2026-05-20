@@ -16,7 +16,7 @@ export async function getAllPosts(): Promise<Post[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   return client.fetch(
-    `*[_type == "post" && slug.current == $slug][0]`,
+    `*[_type == "post" && slug.current == $slug][0] { _id, title, slug, category, publishedAt, thumbnail, excerpt, body }`,
     { slug }
   )
 }
@@ -29,7 +29,7 @@ export async function getAllPrograms(): Promise<Program[]> {
 
 export async function getProgramBySlug(slug: string): Promise<Program | null> {
   return client.fetch(
-    `*[_type == "program" && slug.current == $slug][0]`,
+    `*[_type == "program" && slug.current == $slug][0] { _id, name, slug, category, order, thumbnail, description, body }`,
     { slug }
   )
 }

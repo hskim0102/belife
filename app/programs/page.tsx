@@ -5,6 +5,8 @@ import { ProgramsListClient } from './ProgramsListClient'
 
 export const metadata: Metadata = { title: '사업' }
 
+export const revalidate = 60
+
 export default async function ProgramsPage() {
   const programs = await getAllPrograms()
   return (

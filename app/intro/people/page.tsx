@@ -5,6 +5,8 @@ import type { Member } from '@/lib/sanity/types'
 
 export const metadata: Metadata = { title: '함께하는 사람들' }
 
+export const revalidate = 60
+
 const groupLabels: Record<string, string> = {
   board: '이사회',
   auditor: '감사',

@@ -34,7 +34,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
         <h1 className="text-3xl font-black mb-10 leading-tight">{post.title}</h1>
         {post.body && (
           <div className="prose prose-lg max-w-none text-text leading-relaxed">
-            <PortableText value={post.body as Parameters<typeof PortableText>[0]['value']} />
+            <PortableText value={post.body} />
           </div>
         )}
       </div>

@@ -5,6 +5,8 @@ import { getCategoryLabel } from '@/lib/utils'
 import { PortableText } from '@portabletext/react'
 import type { Metadata } from 'next'
 
+export const revalidate = 60
+
 export async function generateStaticParams() {
   const programs = await getAllPrograms()
   return programs.map(p => ({ slug: p.slug.current }))
@@ -30,7 +32,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
         <p className="text-text-subtle leading-relaxed text-lg mb-10">{program.description}</p>
         {program.body && (
           <div className="prose prose-lg max-w-none text-text leading-relaxed">
-            <PortableText value={program.body as Parameters<typeof PortableText>[0]['value']} />
+            <PortableText value={program.body} />
           </div>
         )}
       </div>
