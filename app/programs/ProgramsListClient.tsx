@@ -55,7 +55,7 @@ export function ProgramsListClient({ programs }: { programs: Program[] }) {
           </Link>
         ))}
         {filtered.length === 0 && (
-          <p className="col-span-3 text-center text-text-subtle py-10">해당 사업이 없습니다.</p>
+          <p className="col-span-full text-center text-text-subtle py-10">해당 사업이 없습니다.</p>
         )}
       </div>
     </>
