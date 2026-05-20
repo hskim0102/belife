@@ -24,7 +24,7 @@ export default async function HistoryPage() {
             <div key={year}>
               <h2 className="text-2xl font-black text-primary -ml-10 mb-4">{year}</h2>
               <ul className="space-y-3">
-                {byYear[year].sort((a, b) => a.month - b.month).map(m => (
+                {[...byYear[year]].sort((a, b) => a.month - b.month).map(m => (
                   <li key={m._id} className="flex gap-3 text-sm leading-relaxed">
                     <span className="font-bold text-primary-dark w-6 shrink-0">{m.month}</span>
                     <span className="text-text-subtle">{m.content}</span>
