@@ -33,6 +33,9 @@ export function ProgramsSection({ programs }: { programs: Program[] }) {
               </div>
             </Link>
           ))}
+          {programs.length === 0 && (
+            <p className="col-span-4 text-center text-text-subtle py-10">등록된 사업이 없습니다.</p>
+          )}
         </div>
         <div className="text-center mt-8">
           <Link href="/programs" className="text-primary font-semibold text-sm hover:underline">전체 사업 보기 →</Link>

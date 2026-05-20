@@ -4,7 +4,7 @@ import type { Post, Program, Milestone, Member, ImpactStat, SiteSettings } from 
 export async function getRecentPosts(limit = 3): Promise<Post[]> {
   return client.fetch(
     `*[_type == "post"] | order(publishedAt desc) [0...$limit] { _id, title, slug, category, publishedAt, thumbnail, excerpt }`,
-    { limit: limit - 1 }
+    { limit }
   )
 }
 
