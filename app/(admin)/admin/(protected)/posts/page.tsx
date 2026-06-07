@@ -2,29 +2,28 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsPage } from '@/lib/repositories/posts'
 import { formatDate, getCategoryLabel } from '@/lib/utils'
-import { BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
+import { BOARD_CATEGORIES, BOARD_CATEGORY_KEYS, isBoardCategory } from '@/lib/boardCategories'
 import type { Post } from '@/lib/types'
-import { DeleteButton } from './DeleteButton'
+import { RowActions } from '@/components/admin/RowActions'
 
 export const metadata: Metadata = { title: '게시판 글 관리' }
 export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 20
 
+// 게시판 글 관리는 게시판 8종만 다룬다(활동소식은 /admin/news 에서 관리).
 const filters: { key: 'all' | Post['category']; label: string }[] = [
   { key: 'all', label: '전체' },
-  { key: 'activity', label: '활동소식' },
   ...BOARD_CATEGORIES.map(c => ({ key: c.key, label: c.label })),
 ]
 
 function parseFilter(value: string | undefined): Post['category'] | undefined {
-  if (value === 'activity' || isBoardCategory(value ?? '')) return value as Post['category']
-  return undefined
+  return isBoardCategory(value ?? '') ? (value as Post['category']) : undefined
 }
 
-/** 공개 보기 경로(활동소식은 /news, 게시판은 /board/<category>). */
+/** 게시판 글 공개 보기 경로(/board/<category>). */
 function viewHref(post: Post): string {
-  return post.category === 'activity' ? `/news/${post.slug}` : `/board/${post.category}/${post.slug}`
+  return `/board/${post.category}/${post.slug}`
 }
 
 export default async function AdminPostsPage({
@@ -36,7 +35,12 @@ export default async function AdminPostsPage({
   const page = Math.max(1, Number(sp.page) || 1)
   const category = parseFilter(sp.category)
 
-  const { posts, total, totalPages } = await getPostsPage({ category, page, pageSize: PAGE_SIZE })
+  const { posts, total, totalPages } = await getPostsPage({
+    category,
+    categories: category ? undefined : BOARD_CATEGORY_KEYS,
+    page,
+    pageSize: PAGE_SIZE,
+  })
 
   const buildHref = (p: number, c?: string) => {
     const params = new URLSearchParams()
@@ -109,22 +113,12 @@ export default async function AdminPostsPage({
                 </td>
                 <td className="px-4 py-3 text-gray-400">{formatDate(post.publishedAt)}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-3">
-                    <Link
-                      href={viewHref(post)}
-                      target="_blank"
-                      className="text-sm text-gray-400 hover:text-gray-700 font-semibold transition-colors"
-                    >
-                      보기
-                    </Link>
-                    <Link
-                      href={`/admin/posts/${post.id}/edit`}
-                      className="text-sm text-gray-400 hover:text-primary font-semibold transition-colors"
-                    >
-                      수정
-                    </Link>
-                    <DeleteButton id={post.id} title={post.title} />
-                  </div>
+                  <RowActions
+                    id={post.id}
+                    title={post.title}
+                    viewHref={viewHref(post)}
+                    editHref={`/admin/posts/${post.id}/edit`}
+                  />
                 </td>
               </tr>
             ))}

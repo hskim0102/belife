@@ -5,27 +5,44 @@ import Link from 'next/link'
 import type { Post } from '@/lib/types'
 import type { FormState } from '../../actions'
 import { TiptapEditor } from '@/components/admin/TiptapEditor'
-import { BOARD_CATEGORIES } from '@/lib/boardCategories'
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>
 
-const categoryOptions = [
-  { value: 'activity', label: '활동소식 (소식)' },
-  ...BOARD_CATEGORIES.map(c => ({ value: c.key, label: c.label })),
-]
+export interface CategoryOption {
+  value: string
+  label: string
+}
 
 export function PostEditorForm({
   action,
   post,
   submitLabel,
+  categoryOptions,
+  cancelHref = '/admin/posts',
+  categoryLabel = '게시판 분류',
+  tagOptions,
 }: {
   action: Action
   post?: Post
   submitLabel: string
+  categoryOptions: CategoryOption[]
+  cancelHref?: string
+  categoryLabel?: string
+  /** 지정 시 분류를 자유입력 대신 단일 select 로 선택(소식 분류용). */
+  tagOptions?: readonly string[]
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {})
   const today = new Date().toISOString().slice(0, 10)
   const defaultDate = post ? post.publishedAt.slice(0, 10) : today
+  const single = categoryOptions.length === 1
+
+  // 분류 select 옵션: 기본 목록 + (수정 중인 글의 기존 분류가 목록에 없으면 보존)
+  const currentTag = post?.tags[0] ?? ''
+  const tagSelectOptions = tagOptions
+    ? currentTag && !tagOptions.includes(currentTag)
+      ? [...tagOptions, currentTag]
+      : tagOptions
+    : null
 
   return (
     <form action={formAction} className="space-y-6">
@@ -34,20 +51,29 @@ export function PostEditorForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-1.5">
-            게시판 분류
+            {categoryLabel}
           </label>
-          <select
-            id="category"
-            name="category"
-            defaultValue={post?.category ?? 'notice'}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
-          >
-            {categoryOptions.map(o => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          {single ? (
+            <>
+              <input type="hidden" name="category" value={categoryOptions[0].value} />
+              <div className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700">
+                {categoryOptions[0].label}
+              </div>
+            </>
+          ) : (
+            <select
+              id="category"
+              name="category"
+              defaultValue={post?.category ?? categoryOptions[0]?.value}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
+            >
+              {categoryOptions.map(o => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div>
@@ -81,16 +107,35 @@ export function PostEditorForm({
 
       <div>
         <label htmlFor="tags" className="block text-sm font-semibold text-gray-700 mb-1.5">
-          분류 태그 <span className="font-normal text-gray-400">· 쉼표로 구분 (선택, 주로 활동소식)</span>
+          분류{' '}
+          <span className="font-normal text-gray-400">
+            {tagSelectOptions ? '· 카테고리 선택' : '· 쉼표로 구분 (선택)'}
+          </span>
         </label>
-        <input
-          id="tags"
-          name="tags"
-          type="text"
-          defaultValue={post?.tags.join(', ') ?? ''}
-          placeholder="가정방문, 어린이"
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-        />
+        {tagSelectOptions ? (
+          <select
+            id="tags"
+            name="tags"
+            defaultValue={currentTag}
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
+          >
+            <option value="">(분류 없음)</option>
+            {tagSelectOptions.map(t => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id="tags"
+            name="tags"
+            type="text"
+            defaultValue={post?.tags.join(', ') ?? ''}
+            placeholder="가정방문, 어린이"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+          />
+        )}
       </div>
 
       <div>
@@ -111,7 +156,7 @@ export function PostEditorForm({
           {pending ? '저장 중…' : submitLabel}
         </button>
         <Link
-          href="/admin/posts"
+          href={cancelHref}
           className="px-6 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
         >
           취소

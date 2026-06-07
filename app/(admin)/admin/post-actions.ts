@@ -61,9 +61,15 @@ async function requireAuth(): Promise<void> {
   if (!(await isAuthenticated())) redirect('/admin/login')
 }
 
+/** 활동소식은 소식 관리(/admin/news), 그 외는 게시판 글 관리(/admin/posts)로 이동. */
+function adminPath(category: Post['category']): string {
+  return category === 'activity' ? '/admin/news' : '/admin/posts'
+}
+
 /** 게시글 변경 시 영향받는 공개 경로 + 관리 경로 재검증 */
 function refresh(category: Post['category'], slug?: string): void {
   revalidatePath('/admin/posts')
+  revalidatePath('/admin/news')
   revalidatePath('/', 'page')
   if (category === 'activity') {
     revalidatePath('/news')
@@ -82,7 +88,7 @@ export async function createPostAction(_prev: FormState, formData: FormData): Pr
 
   const post = await createPost(parsed)
   refresh(post.category, post.slug)
-  redirect('/admin/posts')
+  redirect(adminPath(post.category))
 }
 
 export async function updatePostAction(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -97,16 +103,18 @@ export async function updatePostAction(_prev: FormState, formData: FormData): Pr
   if (!updated) return { error: '존재하지 않는 게시물입니다.' }
 
   refresh(updated.category, updated.slug)
-  redirect('/admin/posts')
+  redirect(adminPath(updated.category))
 }
 
 export async function deletePostAction(formData: FormData): Promise<void> {
   await requireAuth()
   const id = Number(formData.get('id'))
+  let category: Post['category'] | undefined
   if (Number.isInteger(id) && id > 0) {
     const post = await getPostById(id)
+    category = post?.category
     await deletePost(id)
     if (post) refresh(post.category, post.slug)
   }
-  redirect('/admin/posts')
+  redirect(category ? adminPath(category) : '/admin/posts')
 }

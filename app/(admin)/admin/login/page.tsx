@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: '로그인' }
 
 export default async function LoginPage() {
   if (await isAuthenticated()) {
-    redirect('/admin/board')
+    redirect('/admin/posts')
   }
 
   return (

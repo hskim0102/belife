@@ -34,6 +34,22 @@ export const BOARD_CATEGORIES: BoardCategoryDef[] = [
 
 export const BOARD_CATEGORY_KEYS = BOARD_CATEGORIES.map(c => c.key)
 
+/**
+ * 소식(활동소식)의 분류 목록. belife.org 활동소식의 sca 분류 기준.
+ * posts.tags 에 단일 값으로 저장되며, 작성/수정 시 이 목록에서 선택한다.
+ */
+export const ACTIVITY_TAGS = [
+  '가정방문',
+  '어린이',
+  '마음건강',
+  '이주민보건',
+  '동남아시아',
+  '북녘어린이',
+  '교육연구',
+  '강북사랑',
+  '사무국',
+] as const
+
 export function getBoardCategory(key: string): BoardCategoryDef | undefined {
   return BOARD_CATEGORIES.find(c => c.key === key)
 }

@@ -13,15 +13,15 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/admin/board" className="font-black text-gray-900">
+            <Link href="/admin/posts" className="font-black text-gray-900">
               관리자
             </Link>
             <nav className="flex items-center gap-4 text-sm">
+              <Link href="/admin/news" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                소식
+              </Link>
               <Link href="/admin/posts" className="text-gray-600 hover:text-primary font-semibold transition-colors">
                 게시판 글
-              </Link>
-              <Link href="/admin/board" className="text-gray-600 hover:text-primary font-semibold transition-colors">
-                자체 게시판
               </Link>
               <Link href="/admin/hero" className="text-gray-600 hover:text-primary font-semibold transition-colors">
                 메인 배너

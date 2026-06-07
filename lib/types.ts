@@ -10,7 +10,6 @@ export type PostCategory =
   | 'calendar'
 export type ProgramCategory = 'domestic' | 'overseas' | 'education'
 export type MemberGroup = 'board' | 'auditor' | 'advisor' | 'staff'
-export type BoardCategory = 'notice' | 'general' | 'faq'
 
 export interface HeroSlide {
   id: number
@@ -19,19 +18,6 @@ export interface HeroSlide {
   order: number
   published: boolean
   blobPathname: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-export interface BoardPost {
-  id: number
-  category: BoardCategory
-  title: string
-  author: string
-  body: string
-  pinned: boolean
-  published: boolean
-  views: number
   createdAt: string
   updatedAt: string
 }
