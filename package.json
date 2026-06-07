@@ -12,6 +12,11 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/extension-image": "^3.26.0",
+    "@tiptap/extension-link": "^3.26.0",
+    "@tiptap/pm": "^3.26.0",
+    "@tiptap/react": "^3.26.0",
+    "@tiptap/starter-kit": "^3.26.0",
     "@types/sanitize-html": "^2.16.1",
     "@vercel/blob": "^2.4.0",
     "clsx": "^2.1.1",

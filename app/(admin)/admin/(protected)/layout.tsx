@@ -17,8 +17,11 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
               관리자
             </Link>
             <nav className="flex items-center gap-4 text-sm">
+              <Link href="/admin/posts" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                게시판 글
+              </Link>
               <Link href="/admin/board" className="text-gray-600 hover:text-primary font-semibold transition-colors">
-                게시판
+                자체 게시판
               </Link>
               <Link href="/admin/hero" className="text-gray-600 hover:text-primary font-semibold transition-colors">
                 메인 배너

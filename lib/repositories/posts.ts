@@ -157,3 +157,85 @@ export async function getActivityTagCounts(): Promise<{ tag: string; count: numb
   )
   return rows.map(r => ({ tag: r.tag, count: r.count }))
 }
+
+// ── 관리자 CRUD (게시판 글 작성/수정/삭제) ──────────────────────────────────
+
+const POST_COLUMNS = `id, slug, title, category, published_at, thumbnail, excerpt, body, tags`
+
+export interface PostInput {
+  category: Post['category']
+  title: string
+  body: string
+  thumbnail: string | null
+  excerpt: string | null
+  /** YYYY-MM-DD 또는 ISO 문자열 */
+  publishedAt: string
+  tags: string[]
+}
+
+export async function getPostById(id: number): Promise<Post | null> {
+  const row = await queryOne<PostRow>(
+    `SELECT ${POST_COLUMNS} FROM posts WHERE id = $1 LIMIT 1`,
+    [id],
+  )
+  return row ? toPost(row) : null
+}
+
+/** 관리자 작성 글의 고유 slug 생성: <category>-<base36 시각><난수>. 크롤링 slug와 충돌하지 않음. */
+function generateSlug(category: string): string {
+  const ts = Date.now().toString(36)
+  const rand = Math.floor(Math.random() * 1296).toString(36).padStart(2, '0')
+  return `${category}-${ts}${rand}`
+}
+
+export async function createPost(input: PostInput): Promise<Post> {
+  let slug = generateSlug(input.category)
+  // 만일의 slug 충돌에 대비해 몇 차례 재시도.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const existing = await queryOne<{ id: number }>(`SELECT id FROM posts WHERE slug = $1`, [slug])
+    if (!existing) break
+    slug = generateSlug(input.category)
+  }
+  const row = await queryOne<PostRow>(
+    `INSERT INTO posts (slug, title, category, published_at, thumbnail, excerpt, body, tags)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING ${POST_COLUMNS}`,
+    [
+      slug,
+      input.title,
+      input.category,
+      input.publishedAt,
+      input.thumbnail,
+      input.excerpt,
+      input.body,
+      input.tags,
+    ],
+  )
+  if (!row) throw new Error('게시글 생성 실패 (데이터베이스 미연결)')
+  return toPost(row)
+}
+
+export async function updatePost(id: number, input: PostInput): Promise<Post | null> {
+  const row = await queryOne<PostRow>(
+    `UPDATE posts
+        SET title = $2, category = $3, published_at = $4,
+            thumbnail = $5, excerpt = $6, body = $7, tags = $8
+      WHERE id = $1
+      RETURNING ${POST_COLUMNS}`,
+    [
+      id,
+      input.title,
+      input.category,
+      input.publishedAt,
+      input.thumbnail,
+      input.excerpt,
+      input.body,
+      input.tags,
+    ],
+  )
+  return row ? toPost(row) : null
+}
+
+export async function deletePost(id: number): Promise<void> {
+  await query(`DELETE FROM posts WHERE id = $1`, [id])
+}
