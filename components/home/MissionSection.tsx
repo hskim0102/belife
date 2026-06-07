@@ -1,12 +1,12 @@
-﻿import { SectionLabel } from '@/components/ui/SectionLabel'
+import { SectionLabel } from '@/components/ui/SectionLabel'
 
 const missions = [
-  { icon: '👴', title: '저소득 어르신', desc: '가정방문 보건의료, 건강관리 서비스', color: 'bg-amber-50 border-amber-200', iconBg: 'bg-amber-100 text-amber-700' },
-  { icon: '🧒', title: '취약계층 어린이', desc: '아동 치과치료 연계, 건강 지원', color: 'bg-blue-50 border-blue-200', iconBg: 'bg-blue-100 text-blue-700' },
-  { icon: '🌏', title: '해외 빈민', desc: '필리핀 마닐라 빈민지역 의료·상비약 지원', color: 'bg-purple-50 border-purple-200', iconBg: 'bg-purple-100 text-purple-700' },
-  { icon: '🏠', title: '이주민·결혼이주여성', desc: '의료 접근성 지원, 건강관리', color: 'bg-rose-50 border-rose-200', iconBg: 'bg-rose-100 text-rose-700' },
-  { icon: '🕊️', title: '북한이탈주민', desc: '건강 회복과 정착 지원', color: 'bg-sky-50 border-sky-200', iconBg: 'bg-sky-100 text-sky-700' },
-  { icon: '📚', title: '의료 교육·연구', desc: '생명사랑의료학교 운영, 예비의료인 교육', color: 'bg-emerald-50 border-emerald-200', iconBg: 'bg-emerald-100 text-emerald-700' },
+  { icon: '👴', title: '저소득 어르신', desc: '가정방문 보건의료, 건강관리 서비스', color: 'bg-blue-50 border-blue-200', iconBg: 'bg-blue-100 text-blue-700' },
+  { icon: '🧒', title: '취약계층 어린이', desc: '아동 치과치료 연계, 건강 지원', color: 'bg-sky-50 border-sky-200', iconBg: 'bg-sky-100 text-sky-700' },
+  { icon: '🌏', title: '해외 빈민', desc: '필리핀 마닐라 빈민지역 의료·상비약 지원', color: 'bg-indigo-50 border-indigo-200', iconBg: 'bg-indigo-100 text-indigo-700' },
+  { icon: '🏠', title: '이주민·결혼이주여성', desc: '의료 접근성 지원, 건강관리', color: 'bg-violet-50 border-violet-200', iconBg: 'bg-violet-100 text-violet-700' },
+  { icon: '🕊️', title: '북한이탈주민', desc: '건강 회복과 정착 지원', color: 'bg-cyan-50 border-cyan-200', iconBg: 'bg-cyan-100 text-cyan-700' },
+  { icon: '📚', title: '의료 교육·연구', desc: '생명사랑의료학교 운영, 예비의료인 교육', color: 'bg-slate-50 border-slate-200', iconBg: 'bg-slate-100 text-slate-700' },
 ]
 
 export function MissionSection() {

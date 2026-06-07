@@ -25,3 +25,6 @@
 .env.local
 node_modules
 .vercel
+
+belife-activity-images
+__tests__

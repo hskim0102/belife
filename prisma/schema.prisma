@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model impact_stats {
+  id         Int     @id @default(autoincrement())
+  value      String  @db.VarChar(50)
+  unit       String? @db.VarChar(50)
+  label      String  @db.VarChar(200)
+  sort_order Int     @default(0)
+
+  @@index([sort_order], map: "ix_impact_stats_order")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model members {
+  id         Int     @id @default(autoincrement())
+  group_name String
+  name       String  @db.VarChar(100)
+  position   String? @db.VarChar(100)
+  sort_order Int     @default(0)
+
+  @@index([group_name, sort_order], map: "ix_members_group_order")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model milestones {
+  id      Int    @id @default(autoincrement())
+  year    Int    @db.SmallInt
+  month   Int    @db.SmallInt
+  content String @db.VarChar(500)
+
+  @@index([year(sort: Desc), month(sort: Desc)], map: "ix_milestones_when")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model posts {
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique @db.VarChar(191)
+  title        String   @db.VarChar(255)
+  category     String
+  published_at DateTime @db.Timestamptz(6)
+  thumbnail    String?  @db.VarChar(500)
+  excerpt      String?
+  body         String?
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([category], map: "ix_posts_category")
+  @@index([published_at(sort: Desc)], map: "ix_posts_published_at")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model programs {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @db.VarChar(191)
+  name        String   @db.VarChar(255)
+  category    String
+  sort_order  Int      @default(0)
+  thumbnail   String?  @db.VarChar(500)
+  description String
+  body        String?
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([category], map: "ix_programs_category")
+  @@index([sort_order], map: "ix_programs_order")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model site_settings {
+  id               Int     @id @default(1) @db.SmallInt
+  donation_bank    String? @db.VarChar(100)
+  donation_account String? @db.VarChar(100)
+  donation_holder  String? @db.VarChar(100)
+  contact_email    String? @db.VarChar(255)
+  phone_number     String? @db.VarChar(50)
+  address          String? @db.VarChar(500)
+}

@@ -7,6 +7,8 @@ export function getCategoryLabel(category: string): string {
   const map: Record<string, string> = {
     notice: '공지사항',
     activity: '활동소식',
+    general: '일반',
+    faq: '자주 묻는 질문',
     domestic: '국내',
     overseas: '해외',
     education: '교육',

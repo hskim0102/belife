@@ -1,12 +1,12 @@
 ﻿import Link from 'next/link'
 import { SectionLabel } from '@/components/ui/SectionLabel'
-import { Program } from '@/lib/sanity/types'
+import { Program } from '@/lib/types'
 import { getCategoryLabel } from '@/lib/utils'
 
 const categoryStyles: Record<string, { badge: string; strip: string }> = {
-  domestic: { badge: 'bg-emerald-100 text-emerald-700', strip: 'bg-gradient-to-br from-emerald-400 to-emerald-600' },
-  overseas: { badge: 'bg-blue-100 text-blue-700', strip: 'bg-gradient-to-br from-blue-400 to-blue-600' },
-  education: { badge: 'bg-amber-100 text-amber-700', strip: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  domestic: { badge: 'bg-blue-100 text-blue-700', strip: 'bg-gradient-to-br from-blue-400 to-blue-600' },
+  overseas: { badge: 'bg-indigo-100 text-indigo-700', strip: 'bg-gradient-to-br from-indigo-400 to-indigo-600' },
+  education: { badge: 'bg-sky-100 text-sky-700', strip: 'bg-gradient-to-br from-sky-400 to-sky-600' },
 }
 
 const categoryIcons: Record<string, string> = {
@@ -29,7 +29,7 @@ export function ProgramsSection({ programs }: { programs: Program[] }) {
             const style = categoryStyles[p.category] ?? categoryStyles.domestic
             const icon = categoryIcons[p.category] ?? '🏥'
             return (
-              <Link key={p._id} href={`/programs/${p.slug.current}`}>
+              <Link key={p.id} href={`/programs/${p.slug}`}>
                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
                   <div className={`h-24 ${style.strip} flex items-center justify-center text-4xl`}>
                     {icon}
@@ -50,7 +50,7 @@ export function ProgramsSection({ programs }: { programs: Program[] }) {
           )}
         </div>
         <div className="text-center mt-10">
-          <Link href="/programs" className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-dark transition-colors">
+          <Link href="/programs" className="inline-flex items-center gap-2 text-primary-darker font-bold text-sm hover:text-primary-dark transition-colors">
             전체 사업 보기 <span className="text-base">→</span>
           </Link>
         </div>
