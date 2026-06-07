@@ -19,8 +19,14 @@ const categoryStyles: Record<string, { badge: string; strip: string; icon: strin
   education: { badge: 'bg-amber-100 text-amber-700', strip: 'bg-gradient-to-br from-amber-400 to-amber-600', icon: '📚' },
 }
 
-export function ProgramsListClient({ programs }: { programs: Program[] }) {
-  const [active, setActive] = useState('all')
+export function ProgramsListClient({
+  programs,
+  initialCategory = 'all',
+}: {
+  programs: Program[]
+  initialCategory?: string
+}) {
+  const [active, setActive] = useState(initialCategory)
   const filtered = active === 'all' ? programs : programs.filter(p => p.category === active)
 
   return (

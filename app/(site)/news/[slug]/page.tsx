@@ -1,16 +1,12 @@
-import { getPostBySlug, getAllPostSlugs } from '@/lib/repositories/posts'
+import { getPostBySlug } from '@/lib/repositories/posts'
 import { notFound } from 'next/navigation'
 import { formatDate, getCategoryLabel } from '@/lib/utils'
 import { sanitizePostBody } from '@/lib/sanitize'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
+// 글이 수천 건이라 빌드 타임 전체 정적 생성 대신 ISR(첫 요청 시 생성 후 캐시).
 export const revalidate = 60
-
-export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs()
-  return slugs.map(slug => ({ slug }))
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -28,7 +24,8 @@ const categoryColors: Record<string, string> = {
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getPostBySlug(slug)
-  if (!post) notFound()
+  // /news 는 활동소식 전용. 게시판 글(공지·사진 등)은 /board 경로에서만 노출.
+  if (!post || post.category !== 'activity') notFound()
 
   return (
     <>

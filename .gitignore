@@ -27,5 +27,7 @@ node_modules
 .vercel
 
 belife-activity-images
+belife-board-images
 __tests__/
 docs/
+migrations/

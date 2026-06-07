@@ -22,7 +22,7 @@ export const revalidate = 60
 export default async function HomePage() {
   const [programs, posts, stats, heroSlides] = await Promise.all([
     getAllPrograms(),
-    getRecentPosts(3),
+    getRecentPosts(3, ['activity']),
     getImpactStats(),
     getPublishedHeroSlides(),
   ])

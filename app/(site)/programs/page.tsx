@@ -8,8 +8,15 @@ export const metadata: Metadata = { title: '사업' }
 
 export const revalidate = 60
 
-export default async function ProgramsPage() {
+export default async function ProgramsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
   const programs = await getAllPrograms()
+  const initialCategory =
+    category === 'domestic' || category === 'overseas' || category === 'education' ? category : 'all'
   return (
     <>
       <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
@@ -21,7 +28,7 @@ export default async function ProgramsPage() {
 
       <div className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
-          <ProgramsListClient programs={programs} />
+          <ProgramsListClient programs={programs} initialCategory={initialCategory} />
         </div>
       </div>
     </>
