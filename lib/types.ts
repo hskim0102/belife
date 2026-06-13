@@ -9,6 +9,8 @@ export type PostCategory =
   | 'award'
   | 'calendar'
 export type ProgramCategory = 'domestic' | 'overseas' | 'education'
+/** CMS 페이지를 붙일 수 있는 상단 메뉴: 아름다운생명사랑은(intro) / 사업 소개(programs) */
+export type MenuKey = 'intro' | 'programs'
 export type MemberGroup = 'board' | 'auditor' | 'advisor' | 'staff'
 
 export interface HeroSlide {
@@ -33,6 +35,19 @@ export interface Post {
   body: string | null
   /** 분류 태그(활동소식 sca: 가정방문/어린이/마음건강 등). 없으면 빈 배열. */
   tags: string[]
+}
+
+/** 관리자가 메뉴 아래에 등록·수정하는 CMS 페이지. */
+export interface MenuPage {
+  id: number
+  menu: MenuKey
+  slug: string
+  title: string
+  body: string | null
+  order: number
+  published: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Program {
@@ -76,4 +91,17 @@ export interface SiteSettings {
   contactEmail: string | null
   phoneNumber: string | null
   address: string | null
+}
+
+/** 팝업 알림 */
+export interface Notification {
+  id: number
+  title: string
+  body: string | null
+  type: 'info' | 'success' | 'warning' | 'error'
+  enabled: boolean
+  showFrequency: 'always' | 'daily'
+  order: number
+  createdAt: string
+  updatedAt: string
 }

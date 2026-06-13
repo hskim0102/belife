@@ -2,6 +2,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Program } from '@/lib/types'
 import { getCategoryLabel } from '@/lib/utils'
 import { cn } from '@/lib/cn'
@@ -53,8 +54,17 @@ export function ProgramsListClient({
           return (
             <Link key={p.id} href={`/programs/${p.slug}`}>
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 h-full flex flex-col">
-                <div className={`h-36 ${style.strip} flex items-center justify-center text-5xl`}>
-                  {style.icon}
+                <div className={`relative h-36 ${style.strip} flex items-center justify-center text-5xl overflow-hidden`}>
+                  {p.thumbnail ? (
+                    <Image
+                      src={p.thumbnail}
+                      alt={p.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    style.icon
+                  )}
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${style.badge} mb-3 inline-block w-fit`}>

@@ -1,18 +1,12 @@
 ﻿import type { Metadata } from 'next'
 import { getMembers } from '@/lib/repositories/misc'
 import { SectionLabel } from '@/components/ui/SectionLabel'
-import type { Member } from '@/lib/types'
+import { getMemberGroupLabel } from '@/lib/members'
+import type { Member, MemberGroup } from '@/lib/types'
 
 export const metadata: Metadata = { title: '함께하는 사람들' }
 
 export const revalidate = 60
-
-const groupLabels: Record<string, string> = {
-  board: '이사회',
-  auditor: '감사',
-  advisor: '자문위원',
-  staff: '상근자',
-}
 
 const groupColors: Record<string, string> = {
   board: 'bg-emerald-50 border-emerald-200',
@@ -44,7 +38,7 @@ export default async function PeoplePage() {
           {groupOrder.filter(g => byGroup[g]?.length).map(group => (
             <div key={group} className={`rounded-2xl p-6 border ${groupColors[group] ?? 'bg-gray-50 border-gray-100'}`}>
               <h2 className="text-lg font-black text-gray-800 mb-5">
-                {groupLabels[group]}
+                {getMemberGroupLabel(group as MemberGroup)}
               </h2>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {byGroup[group].map(m => (

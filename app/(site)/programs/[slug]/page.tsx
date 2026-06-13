@@ -1,8 +1,23 @@
 import { getProgramBySlug, getAllProgramSlugs } from '@/lib/repositories/programs'
+import { getMenuPageBySlug } from '@/lib/repositories/menuPages'
+import { sanitizePostBody } from '@/lib/sanitize'
+import { SectionLabel } from '@/components/ui/SectionLabel'
+import type { MenuPage } from '@/lib/types'
 import { notFound } from 'next/navigation'
 import { getCategoryLabel } from '@/lib/utils'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+
+function ProgramBodyView({ html }: { html: string | null }) {
+  if (!html) return <p className="text-gray-400">본문이 없습니다.</p>
+  const sanitized = sanitizePostBody(html)
+  return (
+    <div
+      className="prose prose-lg max-w-none prose-headings:font-black prose-p:text-gray-700 prose-p:leading-relaxed prose-img:rounded-xl prose-img:mx-auto"
+      dangerouslySetInnerHTML={{ __html: sanitized }}
+    />
+  )
+}
 
 export const revalidate = 60
 
@@ -11,11 +26,19 @@ export async function generateStaticParams() {
   return slugs.map(slug => ({ slug }))
 }
 
+/** 사업(programs) 메뉴에 관리자가 등록한 CMS 페이지. 사업 상세가 아닐 때 폴백. */
+async function getProgramsMenuPage(slug: string): Promise<MenuPage | null> {
+  const page = await getMenuPageBySlug(slug)
+  return page && page.menu === 'programs' && page.published ? page : null
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const program = await getProgramBySlug(slug)
-  if (!program) return {}
-  return { title: program.name }
+  if (program) return { title: program.name }
+  const page = await getProgramsMenuPage(slug)
+  if (page) return { title: page.title }
+  return {}
 }
 
 const categoryStyles: Record<string, { badge: string; strip: string }> = {
@@ -24,10 +47,45 @@ const categoryStyles: Record<string, { badge: string; strip: string }> = {
   education: { badge: 'bg-amber-100 text-amber-700', strip: 'bg-gradient-to-br from-amber-500 to-orange-600' },
 }
 
+function MenuPageView({ page }: { page: MenuPage }) {
+  return (
+    <>
+      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
+        <div className="max-w-3xl mx-auto">
+          <SectionLabel>Programs</SectionLabel>
+          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">{page.title}</h1>
+        </div>
+      </div>
+
+      <div className="py-14 px-6">
+        <div className="max-w-3xl mx-auto">
+          {page.body ? (
+            <div
+              className="prose prose-lg max-w-none prose-headings:font-black prose-p:text-gray-700 prose-p:leading-relaxed prose-img:rounded-xl prose-img:mx-auto"
+              dangerouslySetInnerHTML={{ __html: sanitizePostBody(page.body) }}
+            />
+          ) : (
+            <p className="text-gray-400">본문이 없습니다.</p>
+          )}
+          <div className="mt-14 pt-8 border-t border-gray-100">
+            <Link href="/programs" className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-dark transition-colors">
+              ← 사업 목록으로 돌아가기
+            </Link>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default async function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const program = await getProgramBySlug(slug)
-  if (!program) notFound()
+  if (!program) {
+    const page = await getProgramsMenuPage(slug)
+    if (page) return <MenuPageView page={page} />
+    notFound()
+  }
 
   const style = categoryStyles[program.category] ?? categoryStyles.domestic
 
@@ -45,11 +103,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       <div className="py-14 px-6">
         <div className="max-w-3xl mx-auto">
           <p className="text-gray-600 leading-relaxed text-lg mb-12 border-l-4 border-primary pl-5">{program.description}</p>
-          {program.body && (
-            <div className="prose prose-lg max-w-none prose-headings:font-black prose-p:text-gray-700 prose-p:leading-relaxed whitespace-pre-wrap">
-              {program.body}
-            </div>
-          )}
+          <ProgramBodyView html={program.body} />
           <div className="mt-14 pt-8 border-t border-gray-100">
             <Link href="/programs" className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary-dark transition-colors">
               ← 사업 목록으로 돌아가기

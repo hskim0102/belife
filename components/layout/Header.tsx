@@ -15,43 +15,55 @@ interface NavItem {
   children?: NavChild[]
 }
 
-const navItems: NavItem[] = [
-  {
-    label: '소개',
-    href: '/intro',
-    children: [
-      { label: '기관 소개', href: '/intro' },
-      { label: '함께하는 사람들', href: '/intro/people' },
-      { label: '발자취', href: '/intro/history' },
-    ],
-  },
-  {
-    label: '사업',
-    href: '/programs',
-    children: [
-      { label: '전체 사업', href: '/programs' },
-      { label: '국내 사업', href: '/programs?category=domestic' },
-      { label: '해외 사업', href: '/programs?category=overseas' },
-      { label: '교육·연구 사업', href: '/programs?category=education' },
-    ],
-  },
-  {
-    label: '소식',
-    href: '/news',
-  },
-  {
-    label: '게시판',
-    href: '/board',
-    children: [
-      { label: '게시판 홈', href: '/board' },
-      ...BOARD_CATEGORIES.map(c => ({ label: c.label, href: `/board/${c.key}` })),
-    ],
-  },
-  { label: '후원·참여', href: '/support' },
-  { label: '문의', href: '/contact' },
-]
+/** 관리자가 등록한 메뉴 페이지(intro/programs)를 받아 네비게이션을 구성한다. */
+function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavItem[] {
+  return [
+    {
+      label: '아름다운생명사랑은',
+      href: '/intro',
+      children: [
+        { label: '기관 소개', href: '/intro' },
+        { label: '함께하는 사람들', href: '/intro/people' },
+        { label: '발자취', href: '/intro/history' },
+        ...introPages,
+      ],
+    },
+    {
+      label: '사업 소개',
+      href: '/programs',
+      children: [
+        { label: '전체 사업', href: '/programs' },
+        { label: '국내 사업', href: '/programs?category=domestic' },
+        { label: '해외 사업', href: '/programs?category=overseas' },
+        { label: '교육·연구 사업', href: '/programs?category=education' },
+        ...programPages,
+      ],
+    },
+    {
+      label: '소식',
+      href: '/news',
+    },
+    {
+      label: '게시판',
+      href: '/board',
+      children: [
+        { label: '게시판 홈', href: '/board' },
+        ...BOARD_CATEGORIES.map(c => ({ label: c.label, href: `/board/${c.key}` })),
+      ],
+    },
+    { label: '후원·참여', href: '/support' },
+    { label: '문의', href: '/contact' },
+  ]
+}
 
-export function Header() {
+export function Header({
+  introPages = [],
+  programPages = [],
+}: {
+  introPages?: NavChild[]
+  programPages?: NavChild[]
+}) {
+  const navItems = buildNavItems(introPages, programPages)
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
 

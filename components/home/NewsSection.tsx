@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Post } from '@/lib/types'
 import { formatDate, getCategoryLabel } from '@/lib/utils'
 import { NoticePanel } from './NoticePanel'
@@ -10,7 +11,17 @@ const cardGradients = [
   'from-purple-100 to-purple-200',
 ]
 
-export function NewsSection({ posts }: { posts: Post[] }) {
+export function NewsSection({
+  posts,
+  noticePost,
+  newsPost,
+  pressPost,
+}: {
+  posts: Post[]
+  noticePost: Post[]
+  newsPost: Post[]
+  pressPost: Post[]
+}) {
   return (
     <section className="bg-gray-50">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[3fr_2fr]">
@@ -32,8 +43,17 @@ export function NewsSection({ posts }: { posts: Post[] }) {
               {posts.map((post, i) => (
                 <Link key={post.id} href={`/news/${post.slug}`}>
                   <article className="bg-white rounded-lg overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
-                    <div className={`h-32 bg-gradient-to-br ${cardGradients[i % cardGradients.length]} flex items-center justify-center text-4xl`}>
-                      📰
+                    <div className={`relative h-32 bg-gradient-to-br ${cardGradients[i % cardGradients.length]} flex items-center justify-center text-4xl overflow-hidden`}>
+                      {post.thumbnail ? (
+                        <Image
+                          src={post.thumbnail}
+                          alt={post.title}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        '📰'
+                      )}
                     </div>
                     <div className="p-4">
                       <span className="text-[10px] font-bold bg-primary-light text-primary px-2 py-0.5 rounded-full">
@@ -50,7 +70,7 @@ export function NewsSection({ posts }: { posts: Post[] }) {
         </div>
 
         {/* Right: Tabbed notices */}
-        <NoticePanel />
+        <NoticePanel noticePost={noticePost} newsPost={newsPost} pressPost={pressPost} />
       </div>
     </section>
   )

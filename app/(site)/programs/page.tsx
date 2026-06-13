@@ -4,7 +4,7 @@ import { getAllPrograms } from '@/lib/repositories/programs'
 import { ProgramsListClient } from './ProgramsListClient'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 
-export const metadata: Metadata = { title: '사업' }
+export const metadata: Metadata = { title: '사업 소개' }
 
 export const revalidate = 60
 

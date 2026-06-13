@@ -3,17 +3,20 @@
 import Link from 'next/link'
 import { deletePostAction } from '@/app/(admin)/admin/post-actions'
 
-/** 관리 목록 행의 보기/수정/삭제 아이콘 액션. 소식·게시판 글 목록에서 공유. */
+/** 관리 목록 행의 보기/수정/삭제 아이콘 액션. 소식·게시판 글·메뉴 페이지 목록에서 공유. */
 export function RowActions({
   id,
   title,
   viewHref,
   editHref,
+  deleteAction = deletePostAction,
 }: {
   id: number
   title: string
   viewHref: string
   editHref: string
+  /** 삭제 Server Action. 기본은 게시글 삭제. */
+  deleteAction?: (formData: FormData) => Promise<void>
 }) {
   const base =
     'inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors'
@@ -38,7 +41,7 @@ export function RowActions({
         <PencilIcon />
       </Link>
       <form
-        action={deletePostAction}
+        action={deleteAction}
         onSubmit={e => {
           if (!confirm(`'${title}' 게시물을 삭제할까요? 되돌릴 수 없습니다.`)) {
             e.preventDefault()

@@ -1,15 +1,16 @@
+import type { MissionCard } from '@/lib/repositories/missionCards'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 
-const missions = [
-  { icon: '👴', title: '저소득 어르신', desc: '가정방문 보건의료, 건강관리 서비스', color: 'bg-blue-50 border-blue-200', iconBg: 'bg-blue-100 text-blue-700' },
-  { icon: '🧒', title: '취약계층 어린이', desc: '아동 치과치료 연계, 건강 지원', color: 'bg-sky-50 border-sky-200', iconBg: 'bg-sky-100 text-sky-700' },
-  { icon: '🌏', title: '해외 빈민', desc: '필리핀 마닐라 빈민지역 의료·상비약 지원', color: 'bg-indigo-50 border-indigo-200', iconBg: 'bg-indigo-100 text-indigo-700' },
-  { icon: '🏠', title: '이주민·결혼이주여성', desc: '의료 접근성 지원, 건강관리', color: 'bg-violet-50 border-violet-200', iconBg: 'bg-violet-100 text-violet-700' },
-  { icon: '🕊️', title: '북한이탈주민', desc: '건강 회복과 정착 지원', color: 'bg-cyan-50 border-cyan-200', iconBg: 'bg-cyan-100 text-cyan-700' },
-  { icon: '📚', title: '의료 교육·연구', desc: '생명사랑의료학교 운영, 예비의료인 교육', color: 'bg-slate-50 border-slate-200', iconBg: 'bg-slate-100 text-slate-700' },
+const colorMap = [
+  { color: 'bg-blue-50 border-blue-200', iconBg: 'bg-blue-100 text-blue-700' },
+  { color: 'bg-sky-50 border-sky-200', iconBg: 'bg-sky-100 text-sky-700' },
+  { color: 'bg-indigo-50 border-indigo-200', iconBg: 'bg-indigo-100 text-indigo-700' },
+  { color: 'bg-violet-50 border-violet-200', iconBg: 'bg-violet-100 text-violet-700' },
+  { color: 'bg-cyan-50 border-cyan-200', iconBg: 'bg-cyan-100 text-cyan-700' },
+  { color: 'bg-slate-50 border-slate-200', iconBg: 'bg-slate-100 text-slate-700' },
 ]
 
-export function MissionSection() {
+export function MissionSection({ cards }: { cards: MissionCard[] }) {
   return (
     <section className="bg-white py-24 px-6">
       <div className="max-w-6xl mx-auto">
@@ -22,15 +23,18 @@ export function MissionSection() {
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          {missions.map(m => (
-            <div key={m.title} className={`${m.color} rounded-2xl p-6 border hover:shadow-md transition-shadow duration-200`}>
-              <div className={`${m.iconBg} w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4`}>
-                {m.icon}
+          {cards.map((card, i) => {
+            const colorSet = colorMap[i % colorMap.length]
+            return (
+              <div key={card.id} className={`${colorSet.color} rounded-2xl p-6 border hover:shadow-md transition-shadow duration-200`}>
+                <div className={`${colorSet.iconBg} w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4`}>
+                  {card.iconEmoji}
+                </div>
+                <h4 className="font-bold text-gray-900 mb-2 text-[15px]">{card.title}</h4>
+                <p className="text-sm text-gray-500 leading-relaxed">{card.description}</p>
               </div>
-              <h4 className="font-bold text-gray-900 mb-2 text-[15px]">{m.title}</h4>
-              <p className="text-sm text-gray-500 leading-relaxed">{m.desc}</p>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

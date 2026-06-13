@@ -23,8 +23,26 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
               <Link href="/admin/posts" className="text-gray-600 hover:text-primary font-semibold transition-colors">
                 게시판 글
               </Link>
+              <Link href="/admin/programs" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                사업
+              </Link>
               <Link href="/admin/hero" className="text-gray-600 hover:text-primary font-semibold transition-colors">
                 메인 배너
+              </Link>
+              <Link href="/admin/pages" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                메뉴 페이지
+              </Link>
+              <Link href="/admin/members" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                함께하는 사람들
+              </Link>
+              <Link href="/admin/milestones" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                발자취
+              </Link>
+              <Link href="/admin/notifications" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                팝업 알림
+              </Link>
+              <Link href="/admin/mission-cards" className="text-gray-600 hover:text-primary font-semibold transition-colors">
+                소명 카드
               </Link>
             </nav>
           </div>

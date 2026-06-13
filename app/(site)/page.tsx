@@ -11,6 +11,7 @@ import { getAllPrograms } from '@/lib/repositories/programs'
 import { getRecentPosts } from '@/lib/repositories/posts'
 import { getImpactStats } from '@/lib/repositories/misc'
 import { getPublishedHeroSlides } from '@/lib/repositories/heroSlides'
+import { getEnabledMissionCards } from '@/lib/repositories/missionCards'
 
 export const metadata: Metadata = {
   title: '아름다운생명사랑 | 생명을 사랑하는 의료복지단체',
@@ -20,11 +21,15 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function HomePage() {
-  const [programs, posts, stats, heroSlides] = await Promise.all([
+  const [programs, activityPosts, noticePost, newsPost, pressPost, stats, heroSlides, missionCards] = await Promise.all([
     getAllPrograms(),
     getRecentPosts(3, ['activity']),
+    getRecentPosts(6, ['notice']),
+    getRecentPosts(6, ['activity']),
+    getRecentPosts(6, ['press']),
     getImpactStats(),
     getPublishedHeroSlides(),
+    getEnabledMissionCards(),
   ])
 
   const slides = heroSlides.map(s => ({ src: s.imageUrl, alt: s.alt }))
@@ -33,10 +38,10 @@ export default async function HomePage() {
     <>
       <HeroSection slides={slides} />
       <QuickLinksSection />
-      <MissionSection />
+      <MissionSection cards={missionCards} />
       <ProgramsSection programs={programs} />
       <ImpactSection stats={stats} />
-      <NewsSection posts={posts} />
+      <NewsSection posts={activityPosts} noticePost={noticePost} newsPost={newsPost} pressPost={pressPost} />
       <CtaSection />
     </>
   )
