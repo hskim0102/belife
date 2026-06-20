@@ -5,6 +5,7 @@ import { sanitizePostBody } from '@/lib/sanitize'
 import { getBoardCategory, isBoardCategory } from '@/lib/boardCategories'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { CommentSection } from '@/components/board/CommentSection'
 
 export const revalidate = 60
 
@@ -55,6 +56,9 @@ export default async function BoardDetailPage({
           ) : (
             <p className="text-gray-400">본문이 없습니다.</p>
           )}
+
+          <CommentSection postId={post.id} />
+
           <div className="mt-14 pt-8 border-t border-gray-100">
             <Link
               href={`/board/${category}`}

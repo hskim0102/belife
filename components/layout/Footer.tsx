@@ -35,7 +35,7 @@ export function Footer() {
           <p className="text-xs text-white/60">
             copyright© 2013 All rights reserved by belife.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/privacy" className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded">
               개인정보처리방침
             </Link>
@@ -47,6 +47,24 @@ export function Footer() {
             <Link href="/sitemap" className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded">
               사이트맵
             </Link>
+            <span className="text-white/30 text-xs">|</span>
+            <a
+              href="https://www.nts.go.kr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded"
+            >
+              국세청
+            </a>
+            <span className="text-white/30 text-xs">|</span>
+            <a
+              href="https://www.seoul.go.kr/main/index.jsp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded"
+            >
+              서울특별시
+            </a>
           </div>
         </div>
       </div>

@@ -1,11 +1,6 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// Prisma schema is kept for documentation purposes only.
+// This project uses raw pg library instead of Prisma ORM.
+// See lib/db.ts for database query interface.
 
 model impact_stats {
   id         Int     @id @default(autoincrement())
@@ -40,19 +35,34 @@ model milestones {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model posts {
-  id           Int      @id @default(autoincrement())
-  slug         String   @unique @db.VarChar(191)
-  title        String   @db.VarChar(255)
+  id           Int        @id @default(autoincrement())
+  slug         String     @unique @db.VarChar(191)
+  title        String     @db.VarChar(255)
   category     String
-  published_at DateTime @db.Timestamptz(6)
-  thumbnail    String?  @db.VarChar(500)
+  published_at DateTime   @db.Timestamptz(6)
+  thumbnail    String?    @db.VarChar(500)
   excerpt      String?
   body         String?
-  created_at   DateTime @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime @default(now()) @db.Timestamptz(6)
+  created_at   DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime   @default(now()) @db.Timestamptz(6)
+  comments     comments[]
 
   @@index([category], map: "ix_posts_category")
   @@index([published_at(sort: Desc)], map: "ix_posts_published_at")
+}
+
+model comments {
+  id         Int      @id @default(autoincrement())
+  post_id    Int
+  post       posts    @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  author     String   @db.VarChar(100)
+  email      String   @db.VarChar(255)
+  content    String
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([post_id], map: "ix_comments_post_id")
+  @@index([created_at(sort: Desc)], map: "ix_comments_created_at")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

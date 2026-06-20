@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Post } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 
@@ -15,6 +15,7 @@ interface NoticePanelProps {
 
 export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('공지사항')
+  const [commentCounts, setCommentCounts] = useState<Record<number, number>>({})
 
   const items = {
     '공지사항': noticePost,
@@ -23,6 +24,31 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
   }
 
   const currentItems = items[activeTab]
+
+  useEffect(() => {
+    // 모든 게시물의 댓글 수 한 번에 불러오기
+    const loadCommentCounts = async () => {
+      const counts: Record<number, number> = {}
+      const allPosts = [...noticePost, ...newsPost, ...pressPost]
+
+      for (const post of allPosts) {
+        try {
+          const response = await fetch(`/api/posts/${post.id}/comments`)
+          if (response.ok) {
+            const comments = await response.json()
+            counts[post.id] = comments.length
+          }
+        } catch (err) {
+          console.error(`Failed to load comments for post ${post.id}:`, err)
+        }
+      }
+
+      setCommentCounts(counts)
+    }
+
+    loadCommentCounts()
+  }, [noticePost, newsPost, pressPost])
+
   const isToday = (dateStr: string) => {
     const today = new Date().toISOString().split('T')[0]
     const itemDate = dateStr.split('T')[0]
@@ -60,10 +86,17 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
             >
               <span className="w-1.5 h-1.5 rounded-full bg-primary-darker flex-shrink-0 mt-1.5" />
               <Link href={`/board/${item.category}/${item.slug}`} className="flex-1 min-w-0">
-                <p className="text-sm text-gray-700 leading-snug line-clamp-1">
-                  {item.title}
-                  {isToday(item.publishedAt) && <span className="ml-1.5 text-[10px] font-bold text-red-500">N</span>}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-700 leading-snug line-clamp-1 flex-1">
+                    {item.title}
+                    {isToday(item.publishedAt) && <span className="ml-1.5 text-[10px] font-bold text-red-500">N</span>}
+                  </p>
+                  {(commentCounts[item.id] ?? 0) > 0 && (
+                    <span className="flex-shrink-0 text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded">
+                      댓글 {commentCounts[item.id]}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-gray-400 mt-0.5">{formatDate(item.publishedAt).replace(/-/g, '.')}</p>
               </Link>
             </li>

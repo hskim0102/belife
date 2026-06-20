@@ -5,6 +5,7 @@ import { getPostsPage } from '@/lib/repositories/posts'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
 import { formatDate } from '@/lib/utils'
 import { SectionLabel } from '@/components/ui/SectionLabel'
+import { CommentCount } from '@/components/board/CommentCount'
 
 export const revalidate = 60
 
@@ -122,9 +123,12 @@ export default async function BoardCategoryPage({
                   className="flex items-center gap-4 px-2 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
                   <span className="flex-1 min-w-0 truncate font-medium text-gray-900">{post.title}</span>
-                  <span className="shrink-0 text-sm text-gray-400 w-24 text-right">
-                    {formatDate(post.publishedAt)}
-                  </span>
+                  <div className="shrink-0 flex items-center gap-3">
+                    <CommentCount postId={post.id} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded" />
+                    <span className="text-sm text-gray-400 w-24 text-right">
+                      {formatDate(post.publishedAt)}
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -149,7 +153,10 @@ export default async function BoardCategoryPage({
                       </div>
                     )}
                     <div className="p-5 flex flex-col flex-1">
-                      <span className="text-xs text-gray-400 mb-2">{formatDate(post.publishedAt)}</span>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-xs text-gray-400">{formatDate(post.publishedAt)}</span>
+                        <CommentCount postId={post.id} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded whitespace-nowrap" />
+                      </div>
                       <h2 className="font-bold text-[15px] text-gray-900 leading-snug line-clamp-2">{post.title}</h2>
                       {post.excerpt && (
                         <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed mt-2">{post.excerpt}</p>
