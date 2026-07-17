@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPostsPage } from '@/lib/repositories/posts'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
 import { formatDate } from '@/lib/utils'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 import { CommentCount } from '@/components/board/CommentCount'
 
 export const revalidate = 60
@@ -76,15 +76,7 @@ export default async function BoardCategoryPage({
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-5xl mx-auto">
-          <SectionLabel>Board</SectionLabel>
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">{cat.emoji}</span>
-            <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">{cat.label}</h1>
-          </div>
-        </div>
-      </div>
+      <PageHero label="Board" title={cat.label} icon={cat.emoji} maxWidth="max-w-5xl" />
 
       <div className="py-14 px-6">
         <div className="max-w-5xl mx-auto">

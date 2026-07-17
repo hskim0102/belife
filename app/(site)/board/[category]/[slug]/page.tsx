@@ -6,6 +6,7 @@ import { getBoardCategory, isBoardCategory } from '@/lib/boardCategories'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { CommentSection } from '@/components/board/CommentSection'
+import { PageHero } from '@/components/ui/PageHero'
 
 export const revalidate = 60
 
@@ -34,17 +35,15 @@ export default async function BoardDetailPage({
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/20 text-white">
-              {cat.label}
-            </span>
-            <span className="text-white/50 text-sm">{formatDate(post.publishedAt)}</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">{post.title}</h1>
+      <PageHero maxWidth="max-w-3xl">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/20 text-white">
+            {cat.label}
+          </span>
+          <span className="text-white/50 text-sm">{formatDate(post.publishedAt)}</span>
         </div>
-      </div>
+        <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">{post.title}</h1>
+      </PageHero>
 
       <div className="py-14 px-6">
         <div className="max-w-3xl mx-auto">

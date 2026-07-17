@@ -4,6 +4,7 @@ import { formatDate, getCategoryLabel } from '@/lib/utils'
 import { sanitizePostBody } from '@/lib/sanitize'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { PageHero } from '@/components/ui/PageHero'
 
 // 글이 수천 건이라 빌드 타임 전체 정적 생성 대신 ISR(첫 요청 시 생성 후 캐시).
 export const revalidate = 60
@@ -29,26 +30,24 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 mb-4">
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${categoryColors[post.category] ?? 'bg-white/20 text-white'}`}>
-              {getCategoryLabel(post.category)}
-            </span>
-            <span className="text-white/50 text-sm">{formatDate(post.publishedAt)}</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">{post.title}</h1>
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {post.tags.map(tag => (
-                <span key={tag} className="text-xs font-semibold text-white bg-white/15 px-2.5 py-1 rounded-full">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+      <PageHero maxWidth="max-w-3xl">
+        <div className="flex items-center gap-2 mb-4">
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${categoryColors[post.category] ?? 'bg-white/20 text-white'}`}>
+            {getCategoryLabel(post.category)}
+          </span>
+          <span className="text-white/50 text-sm">{formatDate(post.publishedAt)}</span>
         </div>
-      </div>
+        <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">{post.title}</h1>
+        {post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {post.tags.map(tag => (
+              <span key={tag} className="text-xs font-semibold text-white bg-white/15 px-2.5 py-1 rounded-full">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </PageHero>
 
       <div className="py-14 px-6">
         <div className="max-w-3xl mx-auto">

@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import { getSiteSettings } from '@/lib/repositories/misc'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '문의' }
 
@@ -11,16 +11,7 @@ export default async function ContactPage() {
 
   return (
     <>
-      {/* Page header */}
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-2xl mx-auto">
-          <SectionLabel>Contact</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-3">문의</h1>
-          <p className="text-white/65 leading-relaxed">
-            사업 협력, 후원, 봉사 문의는 아래 연락처로 연락해주세요.
-          </p>
-        </div>
-      </div>
+      <PageHero label="Contact" title="문의" subtitle="사업 협력, 후원, 봉사 문의는 아래 연락처로 연락해주세요." icon="✉️" maxWidth="max-w-2xl" />
 
       <div className="py-16 px-6">
         <div className="max-w-2xl mx-auto">

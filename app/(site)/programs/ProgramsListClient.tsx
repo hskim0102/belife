@@ -28,6 +28,12 @@ export function ProgramsListClient({
   initialCategory?: string
 }) {
   const [active, setActive] = useState(initialCategory)
+  // URL 쿼리(?category=)가 바뀌면(예: 상단 메뉴에서 클릭) 활성 탭을 동기화한다.
+  const [prevInitial, setPrevInitial] = useState(initialCategory)
+  if (initialCategory !== prevInitial) {
+    setPrevInitial(initialCategory)
+    setActive(initialCategory)
+  }
   const filtered = active === 'all' ? programs : programs.filter(p => p.category === active)
 
   return (

@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import { getMembers } from '@/lib/repositories/misc'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 import { getMemberGroupLabel } from '@/lib/members'
 import type { Member, MemberGroup } from '@/lib/types'
 
@@ -26,12 +26,7 @@ export default async function PeoplePage() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-3xl mx-auto">
-          <SectionLabel>People</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">함께하는 사람들</h1>
-        </div>
-      </div>
+      <PageHero label="People" title="함께하는 사람들" icon="🤝" maxWidth="max-w-3xl" />
 
       <div className="py-16 px-6">
         <div className="max-w-3xl mx-auto space-y-10">

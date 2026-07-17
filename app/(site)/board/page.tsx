@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getCategoryCounts } from '@/lib/repositories/posts'
 import { BOARD_CATEGORIES, BOARD_CATEGORY_KEYS } from '@/lib/boardCategories'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '게시판' }
 export const revalidate = 60
@@ -34,12 +34,7 @@ export default async function BoardLandingPage() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-5xl mx-auto">
-          <SectionLabel>Board</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">게시판</h1>
-        </div>
-      </div>
+      <PageHero label="Board" title="게시판" icon="📋" maxWidth="max-w-5xl" />
 
       <div className="py-16 px-6">
         <div className="max-w-5xl mx-auto space-y-12">

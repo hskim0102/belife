@@ -1,7 +1,7 @@
 import { getProgramBySlug, getAllProgramSlugs } from '@/lib/repositories/programs'
 import { getMenuPageBySlug } from '@/lib/repositories/menuPages'
 import { sanitizePostBody } from '@/lib/sanitize'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 import type { MenuPage } from '@/lib/types'
 import { notFound } from 'next/navigation'
 import { getCategoryLabel } from '@/lib/utils'
@@ -50,12 +50,7 @@ const categoryStyles: Record<string, { badge: string; strip: string }> = {
 function MenuPageView({ page }: { page: MenuPage }) {
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-3xl mx-auto">
-          <SectionLabel>Programs</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">{page.title}</h1>
-        </div>
-      </div>
+      <PageHero label="Programs" title={page.title} icon="🌏" maxWidth="max-w-3xl" />
 
       <div className="py-14 px-6">
         <div className="max-w-3xl mx-auto">

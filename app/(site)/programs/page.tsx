@@ -2,7 +2,7 @@
 import type { Metadata } from 'next'
 import { getAllPrograms } from '@/lib/repositories/programs'
 import { ProgramsListClient } from './ProgramsListClient'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '사업 소개' }
 
@@ -19,12 +19,12 @@ export default async function ProgramsPage({
     category === 'domestic' || category === 'overseas' || category === 'education' ? category : 'all'
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-6xl mx-auto">
-          <SectionLabel>Programs</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">주요 사업</h1>
-        </div>
-      </div>
+      <PageHero
+        label="Programs"
+        title="주요 사업"
+        subtitle="국내외에서 생명을 살리는 아름다운생명사랑의 주요 사업을 소개합니다."
+        icon="🌏"
+      />
 
       <div className="py-16 px-6">
         <div className="max-w-6xl mx-auto">

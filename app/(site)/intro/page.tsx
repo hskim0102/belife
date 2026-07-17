@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 import { getMenuPageBySlug } from '@/lib/repositories/menuPages'
 import { sanitizePostBody } from '@/lib/sanitize'
 
@@ -78,13 +78,7 @@ export default async function IntroPage() {
 
   return (
     <>
-      {/* Page header */}
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-3xl mx-auto">
-          <SectionLabel>About</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">아름다운생명사랑은</h1>
-        </div>
-      </div>
+      <PageHero label="About" title="아름다운생명사랑은" icon="🌸" maxWidth="max-w-3xl" />
 
       <div className="py-16 px-6">
         <div className="max-w-3xl mx-auto">

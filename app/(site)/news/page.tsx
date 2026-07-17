@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
 import { formatDate } from '@/lib/utils'
-import { SectionLabel } from '@/components/ui/SectionLabel'
+import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '소식' }
 export const revalidate = 60
@@ -68,12 +68,7 @@ export default async function NewsPage({
 
   return (
     <>
-      <div className="bg-gradient-to-br from-primary-darker to-primary-dark px-6 py-16">
-        <div className="max-w-6xl mx-auto">
-          <SectionLabel>News</SectionLabel>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">활동소식</h1>
-        </div>
-      </div>
+      <PageHero label="News" title="활동소식" icon="📰" maxWidth="max-w-6xl" />
 
       <div className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
