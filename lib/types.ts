@@ -11,7 +11,8 @@ export type PostCategory =
 export type ProgramCategory = 'domestic' | 'overseas' | 'education'
 /** CMS 페이지를 붙일 수 있는 상단 메뉴: 아름다운생명사랑은(intro) / 사업 소개(programs) */
 export type MenuKey = 'intro' | 'programs'
-export type MemberGroup = 'board' | 'auditor' | 'advisor' | 'staff'
+/** 함께하는 사람들 구분 키. 목록은 member_groups 테이블에서 관리한다. */
+export type MemberGroup = string
 
 export interface HeroSlide {
   id: number

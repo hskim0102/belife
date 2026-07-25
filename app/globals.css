@@ -3,15 +3,19 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  /* Primary blue palette */
-  --color-primary: #1a56db;
-  --color-primary-dark: #1a3f8f;
-  --color-primary-darker: #003087;
-  --color-primary-light: #eff6ff;
-  --color-primary-lighter: #dbeafe;
-  --color-primary-accent: #93c5fd;
-  --color-primary-muted: #bfdbfe;
-  --color-navy-footer: #1e3a5f;
+  /* 기본 팔레트 — lib/theme.ts의 'green'과 동일하게 유지할 것 */
+  --color-primary: #3f9c6d;
+  --color-primary-dark: #348059;
+  --color-primary-darker: #2b6b4a;
+  --color-primary-light: #f4fbf7;
+  --color-primary-lighter: #e0f3e8;
+  --color-primary-accent: #c2ecd6;
+  --color-primary-muted: #c3e8d4;
+  --color-navy-footer: #3b5f4d;
+
+  /* Cream backgrounds (미색) */
+  --color-cream: #faf7ef;
+  --color-cream-deep: #f3eee1;
 
   /* Text colors */
   --color-text: #111827;
@@ -31,13 +35,15 @@
 
 @layer base {
   html {
+    /* 글씨가 전체적으로 크게 보이도록 기준 크기를 키운다 (rem 기반 크기 전체에 적용) */
+    font-size: 17px;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
   }
   body {
     font-family: var(--font-sans);
     color: var(--color-text);
-    background-color: white;
+    background-color: var(--color-cream);
   }
   h1, h2, h3, h4 {
     letter-spacing: -0.02em;

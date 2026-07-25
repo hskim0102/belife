@@ -2,6 +2,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { NotificationPopup } from '@/components/NotificationPopup'
+import { FloatingSupportButton } from '@/components/layout/FloatingSupportButton'
 import { getPublishedMenuPages } from '@/lib/repositories/menuPages'
 import { getActiveNotification } from '@/lib/repositories/notifications'
 import { sanitizePostBody } from '@/lib/sanitize'
@@ -45,6 +46,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main>{children}</main>
       <Footer />
       <NotificationPopup notification={notification} />
+      <FloatingSupportButton />
     </>
   )
 }

@@ -3,7 +3,7 @@ import { SectionLabel } from './SectionLabel'
 
 /**
  * 각 페이지 상단의 배너(hero) 영역.
- * 파란 그라데이션 위에 은은한 광원과 도트 패턴, 그리고 페이지별 장식 아이콘을 얹어
+ * 초록 그라데이션 위에 은은한 광원과 도트 패턴, 그리고 페이지별 장식 아이콘을 얹어
  * 밋밋하지 않게 표현한다.
  */
 export function PageHero({

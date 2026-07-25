@@ -12,10 +12,11 @@ export function Button({ variant = 'primary', size = 'md', className, children, 
     <button
       className={cn(
         'rounded-full font-bold transition-all cursor-pointer inline-flex items-center justify-center',
-        size === 'sm' && 'px-5 py-2 text-sm',
-        size === 'md' && 'px-7 py-3 text-base',
-        size === 'lg' && 'px-10 py-4 text-base',
-        variant === 'primary' && 'bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow',
+        size === 'sm' && 'px-6 py-2.5 text-base',
+        size === 'md' && 'px-8 py-3.5 text-lg',
+        size === 'lg' && 'px-12 py-5 text-xl',
+        variant === 'primary' &&
+          'bg-gradient-to-br from-primary to-primary-dark text-white hover:from-primary-dark hover:to-primary-darker shadow-sm hover:shadow',
         variant === 'outline' && 'border-2 border-primary text-primary hover:bg-primary-light',
         variant === 'ghost' && 'text-primary hover:bg-primary-light',
         className

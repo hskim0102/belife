@@ -41,10 +41,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {}
 }
 
-const categoryStyles: Record<string, { badge: string; strip: string }> = {
-  domestic: { badge: 'bg-emerald-100 text-emerald-700', strip: 'bg-gradient-to-br from-emerald-500 to-teal-600' },
-  overseas: { badge: 'bg-blue-100 text-blue-700', strip: 'bg-gradient-to-br from-blue-500 to-indigo-600' },
-  education: { badge: 'bg-amber-100 text-amber-700', strip: 'bg-gradient-to-br from-amber-500 to-orange-600' },
+/** 상단 배너는 테마 색을 따르고, 분류는 배지 색으로만 구분한다. */
+const HERO_STRIP = 'bg-gradient-to-br from-primary-dark via-primary to-primary-darker'
+
+const categoryStyles: Record<string, { badge: string }> = {
+  domestic: { badge: 'bg-emerald-100 text-emerald-700' },
+  overseas: { badge: 'bg-teal-100 text-teal-700' },
+  education: { badge: 'bg-amber-100 text-amber-700' },
 }
 
 function MenuPageView({ page }: { page: MenuPage }) {
@@ -86,7 +89,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <div className={`${style.strip} px-6 py-16`}>
+      <div className={`${HERO_STRIP} px-6 py-16`}>
         <div className="max-w-3xl mx-auto">
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${style.badge} mb-4 inline-block`}>
             {getCategoryLabel(program.category)}

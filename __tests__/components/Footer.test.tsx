@@ -44,4 +44,21 @@ describe('Footer', () => {
     render(<Footer />)
     expect(screen.queryByText(/공익법인/)).toBeNull()
   })
+
+  it('관련 사이트를 새 창으로 여는 버튼으로 렌더링한다', () => {
+    render(<Footer />)
+    const nts = screen.getByRole('link', { name: /국세청/ })
+    expect(nts).toHaveAttribute('href', 'https://www.nts.go.kr/')
+    expect(nts).toHaveAttribute('target', '_blank')
+    expect(nts).toHaveAttribute('rel', 'noopener noreferrer')
+
+    const seoul = screen.getByRole('link', { name: /서울특별시/ })
+    expect(seoul).toHaveAttribute('href', 'https://www.seoul.go.kr/main/index.jsp')
+    expect(seoul).toHaveAttribute('target', '_blank')
+  })
+
+  it('관련 사이트 영역에 이름표를 붙인다', () => {
+    render(<Footer />)
+    expect(screen.getByRole('navigation', { name: '관련 사이트' })).toBeInTheDocument()
+  })
 })

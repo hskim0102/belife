@@ -45,13 +45,13 @@ function IconComponent({ type }: { type: IconType }) {
 
 const typeStyles = {
   info: {
-    bg: 'bg-sky-50',
-    border: 'border-sky-100',
-    title: 'text-sky-800',
-    body: 'text-sky-700',
-    button: 'bg-sky-500 hover:bg-sky-600',
-    icon: 'text-sky-500',
-    headerBorder: 'border-sky-100',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-100',
+    title: 'text-emerald-800',
+    body: 'text-emerald-700',
+    button: 'bg-emerald-500 hover:bg-emerald-600',
+    icon: 'text-emerald-500',
+    headerBorder: 'border-emerald-100',
   },
   success: {
     bg: 'bg-teal-50',

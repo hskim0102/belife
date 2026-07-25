@@ -120,7 +120,7 @@ export function Header({
                 <Link
                   href={item.href}
                   onClick={() => setOpenMenu(null)}
-                  className={`flex items-center gap-1 px-5 text-[15px] font-semibold border-b-2 -mb-[2px] transition-colors ${
+                  className={`flex items-center gap-1 px-4 text-base font-semibold whitespace-nowrap border-b-2 -mb-[2px] transition-colors ${
                     active || isOpen
                       ? 'text-primary-darker border-primary-darker'
                       : 'text-gray-600 border-transparent'
@@ -150,7 +150,7 @@ export function Header({
                         key={child.href}
                         href={child.href}
                         onClick={() => setOpenMenu(null)}
-                        className="block px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-primary-darker hover:bg-primary-light/60 transition-colors"
+                        className="block px-4 py-2.5 text-[15px] font-medium text-gray-600 hover:text-primary-darker hover:bg-primary-light/60 transition-colors"
                       >
                         {child.label}
                       </Link>
@@ -185,7 +185,7 @@ export function Header({
             )}
           </button>
           <Link href="/support">
-            <span className="inline-block bg-primary-darker text-white font-bold px-6 py-3 rounded text-sm hover:bg-primary-dark transition-colors cursor-pointer">
+            <span className="inline-block bg-gradient-to-br from-primary to-primary-dark text-white font-bold px-6 py-3 rounded-lg text-base whitespace-nowrap hover:from-primary-dark hover:to-primary-darker transition-colors cursor-pointer">
               후원하기
             </span>
           </Link>
@@ -216,7 +216,7 @@ export function Header({
               <div key={item.href}>
                 <Link
                   href={item.href}
-                  className={`px-4 py-3 rounded text-sm font-semibold transition-colors block ${
+                  className={`px-4 py-3 rounded text-base font-semibold transition-colors block ${
                     active ? 'text-primary-darker bg-primary-light' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={() => setMenuOpen(false)}
@@ -229,7 +229,7 @@ export function Header({
                       <Link
                         key={child.href}
                         href={child.href}
-                        className="pl-4 pr-3 py-2 text-[13px] font-medium text-gray-500 hover:text-primary-darker transition-colors"
+                        className="pl-4 pr-3 py-2 text-sm font-medium text-gray-500 hover:text-primary-darker transition-colors"
                         onClick={() => setMenuOpen(false)}
                       >
                         {child.label}
@@ -242,7 +242,7 @@ export function Header({
           })}
           <div className="pt-2 pb-1">
             <Link href="/support" onClick={() => setMenuOpen(false)}>
-              <span className="block bg-primary-darker text-white font-bold px-5 py-3 rounded text-sm text-center cursor-pointer hover:bg-primary-dark transition-colors">
+              <span className="block bg-gradient-to-br from-primary to-primary-dark text-white font-bold px-5 py-3.5 rounded-lg text-base text-center cursor-pointer hover:from-primary-dark hover:to-primary-darker transition-colors">
                 후원하기
               </span>
             </Link>

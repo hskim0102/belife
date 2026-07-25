@@ -34,7 +34,7 @@ function FallbackBody() {
       </p>
 
       <div className="grid md:grid-cols-2 gap-10">
-        <div className="bg-primary-light rounded-2xl p-8 border border-primary-lighter">
+        <div className="bg-gradient-to-br from-primary-light to-primary-lighter rounded-2xl p-8 border border-primary-lighter">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-black">소</span>

@@ -12,12 +12,12 @@ export const revalidate = 60
 const PAGE_SIZE = 12
 
 const gradients = [
-  'bg-gradient-to-br from-emerald-400 to-teal-500',
-  'bg-gradient-to-br from-blue-400 to-indigo-500',
-  'bg-gradient-to-br from-purple-400 to-pink-500',
-  'bg-gradient-to-br from-amber-400 to-orange-500',
-  'bg-gradient-to-br from-rose-400 to-red-500',
-  'bg-gradient-to-br from-sky-400 to-cyan-500',
+  'bg-gradient-to-br from-emerald-100 to-teal-200',
+  'bg-gradient-to-br from-lime-100 to-green-200',
+  'bg-gradient-to-br from-purple-100 to-pink-200',
+  'bg-gradient-to-br from-amber-100 to-orange-200',
+  'bg-gradient-to-br from-rose-100 to-red-200',
+  'bg-gradient-to-br from-teal-100 to-cyan-200',
 ]
 
 export async function generateStaticParams() {

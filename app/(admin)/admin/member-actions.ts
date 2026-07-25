@@ -9,12 +9,15 @@ import {
   deleteMember,
   type MemberInput,
 } from '@/lib/repositories/misc'
-import { isMemberGroup } from '@/lib/members'
+import { getMemberGroups } from '@/lib/repositories/memberGroups'
 import type { FormState } from './actions'
 
-function parseInput(formData: FormData): MemberInput | { error: string } {
-  const groupRaw = String(formData.get('group') ?? '')
-  if (!isMemberGroup(groupRaw)) return { error: '구분을 선택해 주세요.' }
+async function parseInput(formData: FormData): Promise<MemberInput | { error: string }> {
+  const groupRaw = String(formData.get('group') ?? '').trim()
+  if (!groupRaw) return { error: '구분을 선택해 주세요.' }
+  // 구분은 관리자가 편집하므로 고정 목록이 아니라 저장된 값과 대조한다.
+  const groups = await getMemberGroups()
+  if (!groups.some(g => g.key === groupRaw)) return { error: '존재하지 않는 구분입니다.' }
   const name = String(formData.get('name') ?? '').trim()
   const position = String(formData.get('position') ?? '').trim()
   const orderRaw = Number(formData.get('order'))
@@ -38,7 +41,7 @@ function refresh(): void {
 
 export async function createMemberAction(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAuth()
-  const parsed = parseInput(formData)
+  const parsed = await parseInput(formData)
   if ('error' in parsed) return parsed
 
   await createMember(parsed)
@@ -51,7 +54,7 @@ export async function updateMemberAction(_prev: FormState, formData: FormData): 
   const id = Number(formData.get('id'))
   if (!Number.isInteger(id) || id <= 0) return { error: '잘못된 항목입니다.' }
 
-  const parsed = parseInput(formData)
+  const parsed = await parseInput(formData)
   if ('error' in parsed) return parsed
 
   const updated = await updateMember(id, parsed)

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 const categoryColors: Record<string, string> = {
-  notice: 'bg-blue-100 text-blue-700',
+  notice: 'bg-green-100 text-green-700',
   news: 'bg-emerald-100 text-emerald-700',
   event: 'bg-purple-100 text-purple-700',
 }

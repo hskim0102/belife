@@ -10,7 +10,7 @@ const fallbackStats: ImpactStat[] = [
 export function ImpactSection({ stats }: { stats: ImpactStat[] }) {
   const displayStats = stats.length > 0 ? stats : fallbackStats
   return (
-    <section className="bg-primary-darker">
+    <section className="bg-gradient-to-br from-primary-dark to-primary-darker">
       <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
         {displayStats.map((s) => (
           <div
@@ -21,7 +21,7 @@ export function ImpactSection({ stats }: { stats: ImpactStat[] }) {
               {s.value}
               {s.unit && <span className="text-lg font-bold text-primary-accent ml-0.5">{s.unit}</span>}
             </p>
-            <p className="text-white/55 text-xs mt-2">{s.label}</p>
+            <p className="text-white/75 text-xs mt-2">{s.label}</p>
           </div>
         ))}
       </div>

@@ -1,18 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getMembers } from '@/lib/repositories/misc'
-import { MEMBER_GROUPS, getMemberGroupLabel, isMemberGroup } from '@/lib/members'
-import type { MemberGroup } from '@/lib/types'
+import { getMemberGroups } from '@/lib/repositories/memberGroups'
+import { memberGroupLabelMap } from '@/lib/members'
 import { RowActions } from '@/components/admin/RowActions'
 import { deleteMemberAction } from '../../member-actions'
 
 export const metadata: Metadata = { title: '함께하는 사람들 관리' }
 export const dynamic = 'force-dynamic'
-
-const filters: { key: 'all' | MemberGroup; label: string }[] = [
-  { key: 'all', label: '전체' },
-  ...MEMBER_GROUPS.map(g => ({ key: g.key, label: g.label })),
-]
 
 export default async function AdminMembersPage({
   searchParams,
@@ -20,25 +15,37 @@ export default async function AdminMembersPage({
   searchParams: Promise<{ group?: string }>
 }) {
   const sp = await searchParams
-  const group = isMemberGroup(sp.group ?? '') ? (sp.group as MemberGroup) : undefined
-  const all = await getMembers()
+  const [all, groups] = await Promise.all([getMembers(), getMemberGroups()])
+  const labels = memberGroupLabelMap(groups)
+
+  const group = sp.group && labels.has(sp.group) ? sp.group : undefined
   const members = group ? all.filter(m => m.group === group) : all
+
+  const filters = [{ key: 'all', label: '전체' }, ...groups.map(g => ({ key: g.key, label: g.label }))]
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-black text-gray-900">함께하는 사람들 관리</h1>
           <p className="text-sm text-gray-400 mt-1">
             소개 &gt; 함께하는 사람들 페이지의 임원진·상근자 명단입니다. 총 {members.length}명
           </p>
         </div>
-        <Link
-          href="/admin/members/new"
-          className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
-        >
-          + 새 멤버
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/admin/members/groups"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-bold hover:bg-gray-200 transition-colors"
+          >
+            구분 관리
+          </Link>
+          <Link
+            href="/admin/members/new"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+          >
+            + 새 멤버
+          </Link>
+        </div>
       </div>
 
       {/* 구분 필터 */}
@@ -78,7 +85,7 @@ export default async function AdminMembersPage({
                 <td className="px-4 py-3 text-gray-400">{member.id}</td>
                 <td className="px-4 py-3">
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                    {getMemberGroupLabel(member.group)}
+                    {labels.get(member.group) ?? member.group}
                   </span>
                 </td>
                 <td className="px-4 py-3">

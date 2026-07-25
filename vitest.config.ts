@@ -11,6 +11,10 @@ export default defineConfig({
     globals: true,
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, '.') },
+    alias: {
+      '@': path.resolve(__dirname, '.'),
+      // 서버 전용 가드 모듈은 테스트에서 로드할 수 없으므로 빈 모듈로 대체한다.
+      'server-only': path.resolve(__dirname, '__tests__/stubs/server-only.ts'),
+    },
   },
 })

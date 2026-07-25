@@ -47,7 +47,7 @@ export default function LocationPage() {
                 <svg width="40" height="40" viewBox="0 0 24 24" className="drop-shadow-md" aria-hidden="true">
                   <path
                     d="M12 2c-3.87 0-7 3.13-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-                    fill="#e5177f"
+                    className="fill-primary"
                     stroke="#fff"
                     strokeWidth="1.5"
                   />

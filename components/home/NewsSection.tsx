@@ -3,12 +3,13 @@ import Image from 'next/image'
 import { Post } from '@/lib/types'
 import { formatDate, getCategoryLabel } from '@/lib/utils'
 import { NoticePanel } from './NoticePanel'
+import { SectionDivider } from '@/components/ui/SectionDivider'
 
 const cardGradients = [
-  'from-blue-100 to-blue-200',
-  'from-green-100 to-green-200',
-  'from-amber-100 to-amber-200',
-  'from-purple-100 to-purple-200',
+  'from-emerald-50 to-emerald-100',
+  'from-green-50 to-green-100',
+  'from-amber-50 to-amber-100',
+  'from-teal-50 to-teal-100',
 ]
 
 export function NewsSection({
@@ -23,8 +24,9 @@ export function NewsSection({
   pressPost: Post[]
 }) {
   return (
-    <section className="bg-gray-50">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[3fr_2fr]">
+    <section className="bg-gradient-to-b from-cream to-cream-deep pt-14">
+      <SectionDivider className="px-6" />
+      <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr]">
         {/* Left: Story cards */}
         <div className="p-8 border-r border-gray-200">
           <div className="flex items-center justify-between mb-6">

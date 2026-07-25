@@ -22,10 +22,11 @@ export default function SupportPage() {
           <div className="grid md:grid-cols-3 gap-6 mb-12 items-stretch">
             {/* 기부금영수증 */}
             <a
+              id="receipt"
               href="https://mygive.bankcms.co.kr/mygive/main.do?uid=2688&is_receipt=y"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col bg-gray-50 rounded-2xl p-8 border border-gray-100 hover:border-primary-lighter hover:bg-primary-light transition-colors"
+              className="group flex flex-col bg-gray-50 rounded-2xl p-8 border border-gray-100 hover:border-primary-lighter hover:bg-primary-light transition-colors scroll-mt-28"
             >
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-5 text-2xl shadow-sm border border-gray-100">
                 🧾
@@ -44,7 +45,7 @@ export default function SupportPage() {
               href="https://www.mygive.co.kr/mygive/main.do?uid=2688"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col bg-primary-darker text-white rounded-2xl p-8 hover:bg-primary-dark transition-colors shadow-sm"
+              className="group flex flex-col bg-gradient-to-br from-primary-dark to-primary-darker text-white rounded-2xl p-8 hover:from-primary hover:to-primary-dark transition-colors shadow-sm"
             >
               <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center mb-5 text-2xl">
                 💚
@@ -59,7 +60,7 @@ export default function SupportPage() {
             </a>
 
             {/* 자원봉사신청 (준비중) */}
-            <div className="relative flex flex-col bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div id="volunteer" className="relative flex flex-col bg-gray-50 rounded-2xl p-8 border border-gray-100 scroll-mt-28">
               <span className="absolute top-6 right-6 text-xs font-bold bg-gray-200 text-gray-500 px-2.5 py-1 rounded-full">
                 준비중
               </span>

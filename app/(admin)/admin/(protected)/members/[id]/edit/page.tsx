@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getMemberById } from '@/lib/repositories/misc'
+import { getMemberGroups } from '@/lib/repositories/memberGroups'
 import { updateMemberAction } from '../../../../member-actions'
 import { MemberEditorForm } from '../../MemberEditorForm'
 
@@ -13,7 +14,7 @@ export default async function EditMemberPage({ params }: { params: Promise<{ id:
   const numericId = Number(id)
   if (!Number.isInteger(numericId) || numericId <= 0) notFound()
 
-  const member = await getMemberById(numericId)
+  const [member, groups] = await Promise.all([getMemberById(numericId), getMemberGroups()])
   if (!member) notFound()
 
   return (
@@ -22,7 +23,7 @@ export default async function EditMemberPage({ params }: { params: Promise<{ id:
         ← 목록으로
       </Link>
       <h1 className="mt-3 mb-6 text-xl font-black text-gray-900">멤버 수정</h1>
-      <MemberEditorForm action={updateMemberAction} member={member} submitLabel="수정" />
+      <MemberEditorForm action={updateMemberAction} member={member} groups={groups} submitLabel="수정" />
     </div>
   )
 }

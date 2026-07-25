@@ -4,17 +4,20 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import type { Member } from '@/lib/types'
 import type { FormState } from '../../actions'
-import { MEMBER_GROUPS } from '@/lib/members'
+import type { MemberGroupItem } from '@/lib/repositories/memberGroups'
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>
 
 export function MemberEditorForm({
   action,
   member,
+  groups,
   submitLabel,
 }: {
   action: Action
   member?: Member
+  /** 선택 가능한 구분 목록 (관리자 > 구분 관리에서 편집) */
+  groups: MemberGroupItem[]
   submitLabel: string
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(action, {})
@@ -31,10 +34,10 @@ export function MemberEditorForm({
           <select
             id="group"
             name="group"
-            defaultValue={member?.group ?? MEMBER_GROUPS[0].key}
+            defaultValue={member?.group ?? groups[0]?.key}
             className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors bg-white"
           >
-            {MEMBER_GROUPS.map(g => (
+            {groups.map(g => (
               <option key={g.key} value={g.key}>
                 {g.label}
               </option>

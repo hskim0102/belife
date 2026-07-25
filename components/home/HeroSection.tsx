@@ -90,12 +90,12 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/support">
-                <span className="inline-block bg-white text-primary-darker font-bold px-7 py-3 rounded text-sm hover:bg-primary-light transition-colors cursor-pointer shadow-lg">
+                <span className="inline-block bg-white text-primary-darker font-bold px-8 py-3.5 rounded-lg text-base hover:bg-primary-light transition-colors cursor-pointer shadow-lg">
                   후원하기
                 </span>
               </Link>
               <Link href="/programs">
-                <span className="inline-block border border-white/40 text-white font-semibold px-7 py-3 rounded text-sm hover:bg-white/10 hover:border-white/60 transition-colors cursor-pointer">
+                <span className="inline-block border border-white/40 text-white font-semibold px-8 py-3.5 rounded-lg text-base hover:bg-white/10 hover:border-white/60 transition-colors cursor-pointer">
                   활동 보기 →
                 </span>
               </Link>
