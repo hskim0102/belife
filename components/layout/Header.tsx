@@ -102,7 +102,7 @@ export function Header({
     <header className="bg-white border-b-2 border-primary-darker sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-6 h-[76px] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.jpg" alt="아름다운생명사랑" width={180} height={52} className="h-12 w-auto" priority />
+          <Image src="/logo.svg" alt="아름다운생명사랑" width={514} height={88} className="h-12 w-auto" priority />
         </Link>
 
         <nav className="hidden md:flex items-stretch h-full">

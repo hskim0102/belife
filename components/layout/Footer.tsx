@@ -33,11 +33,11 @@ export function Footer() {
         <div className="mb-8">
           <div>
             <Image
-              src="/logo.jpg"
+              src="/logo.svg"
               alt="아름다운생명사랑"
-              width={140}
-              height={38}
-              className="h-10 w-auto mb-4 rounded bg-white p-1"
+              width={514}
+              height={88}
+              className="h-10 w-auto mb-4 rounded bg-white px-2 py-1"
             />
             <p className="text-sm text-white/90 mb-2">대표: 김영진</p>
             <p className="text-sm text-white/80 mb-2">
