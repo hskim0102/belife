@@ -3,9 +3,11 @@ import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { sanitizePostBody } from '@/lib/sanitize'
 import { getBoardCategory, isBoardCategory } from '@/lib/boardCategories'
+import { extractYouTubeId } from '@/lib/youtube'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { CommentSection } from '@/components/board/CommentSection'
+import { YouTubeEmbed } from '@/components/board/YouTubeEmbed'
 import { PageHero } from '@/components/ui/PageHero'
 
 export const revalidate = 60
@@ -32,6 +34,8 @@ export default async function BoardDetailPage({
   // slug 는 유니크하지만, 카테고리 경로와 글의 실제 카테고리가 일치해야 정상 URL.
   if (!post || post.category !== category) notFound()
   const cat = getBoardCategory(category)!
+  // 동영상 게시물은 본문에 넣은 유튜브 링크를 감지해 상단에 플레이어로 재생한다.
+  const videoId = category === 'video' ? extractYouTubeId(post.body) : null
 
   return (
     <>
@@ -47,6 +51,8 @@ export default async function BoardDetailPage({
 
       <div className="py-14 px-6">
         <div className="max-w-3xl mx-auto">
+          {videoId && <YouTubeEmbed videoId={videoId} title={post.title} />}
+
           {post.body ? (
             <div
               className="prose prose-lg max-w-none prose-headings:font-black prose-p:text-gray-700 prose-p:leading-relaxed prose-img:rounded-xl prose-img:mx-auto"

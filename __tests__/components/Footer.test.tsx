@@ -1,6 +1,15 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { describe, it, expect, vi } from 'vitest'
+import { render as rtlRender, screen } from '@testing-library/react'
 import { Footer } from '@/components/layout/Footer'
+import { NavMenuProvider } from '@/components/layout/NavMenuContext'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
+
+// Footer 의 '사이트맵' 버튼은 전체메뉴 컨텍스트를 사용하므로 Provider 로 감싼다.
+function render(ui: ReactElement) {
+  return rtlRender(<NavMenuProvider>{ui}</NavMenuProvider>)
+}
 
 describe('Footer', () => {
   it('저작권 문구를 렌더링한다', () => {

@@ -9,7 +9,7 @@ import type { Post } from '@/lib/types'
 import type { FormState } from './actions'
 
 const VALID_CATEGORIES: Post['category'][] = [
-  'notice', 'activity', 'photo', 'webzine', 'video', 'intro', 'press', 'award', 'calendar',
+  'notice', 'activity', 'photo', 'webzine', 'video', 'intro', 'press', 'award', 'calendar', 'report',
 ]
 
 function parseCategory(value: FormDataEntryValue | null): Post['category'] {

@@ -140,7 +140,10 @@ export function PostEditorForm({
 
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-          내용 <span className="font-normal text-gray-400">· 이미지 버튼으로 사진 첨부 (첫 이미지가 썸네일)</span>
+          내용{' '}
+          <span className="font-normal text-gray-400">
+            · 이미지 버튼으로 사진 첨부 (첫 이미지가 썸네일) · 동영상 글은 유튜브 링크를 넣으면 영상이 재생됩니다
+          </span>
         </label>
         <TiptapEditor name="body" defaultValue={post?.body ?? ''} />
       </div>

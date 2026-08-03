@@ -8,6 +8,7 @@ export type PostCategory =
   | 'press'
   | 'award'
   | 'calendar'
+  | 'report'
 export type ProgramCategory = 'domestic' | 'overseas' | 'education'
 /** CMS 페이지를 붙일 수 있는 상단 메뉴: 아름다운생명사랑은(intro) / 사업 소개(programs) */
 export type MenuKey = 'intro' | 'programs'

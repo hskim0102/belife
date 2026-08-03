@@ -1,6 +1,7 @@
 import { TopBar } from '@/components/layout/TopBar'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { NavMenuProvider } from '@/components/layout/NavMenuContext'
 import { NotificationPopup } from '@/components/NotificationPopup'
 import { FloatingSupportButton } from '@/components/layout/FloatingSupportButton'
 import { getPublishedMenuPages } from '@/lib/repositories/menuPages'
@@ -40,13 +41,13 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     // 알림 조회 실패가 사이트 전체를 막지 않도록 처리.
   }
   return (
-    <>
+    <NavMenuProvider>
       <TopBar />
       <Header introPages={navChildren(pages, 'intro')} programPages={navChildren(pages, 'programs')} />
       <main>{children}</main>
       <Footer />
       <NotificationPopup notification={notification} />
       <FloatingSupportButton />
-    </>
+    </NavMenuProvider>
   )
 }

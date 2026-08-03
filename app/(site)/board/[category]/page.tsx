@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPostsPage } from '@/lib/repositories/posts'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
+import { extractYouTubeId, youTubeThumbnailUrl } from '@/lib/youtube'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
 import { CommentCount } from '@/components/board/CommentCount'
@@ -70,6 +71,8 @@ export default async function BoardCategoryPage({
     category,
     page,
     pageSize: PAGE_SIZE,
+    // 동영상 목록은 본문의 유튜브 링크로 썸네일을 파생하기 위해 본문까지 조회한다.
+    includeBody: category === 'video',
   })
 
   const buildHref = (p: number) => (p > 1 ? `/board/${category}?page=${p}` : `/board/${category}`)
@@ -127,14 +130,18 @@ export default async function BoardCategoryPage({
           ) : (
             /* ── 카드 그리드(사진게시판·홍보자료) ── */
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {posts.map((post, i) => (
+              {posts.map((post, i) => {
+                // 동영상 글은 본문의 유튜브 링크에서 썸네일을 우선 사용한다.
+                const ytId = category === 'video' ? extractYouTubeId(post.body) : null
+                const thumbnail = ytId ? youTubeThumbnailUrl(ytId) : post.thumbnail
+                return (
                 <Link key={post.id} href={`/board/${category}/${post.slug}`}>
                   <article className="rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 bg-white h-full flex flex-col">
-                    {post.thumbnail ? (
-                      // 외부(Blob) 이미지라 next/image 대신 일반 img 사용
+                    {thumbnail ? (
+                      // 외부(Blob/YouTube) 이미지라 next/image 대신 일반 img 사용
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={post.thumbnail}
+                        src={thumbnail}
                         alt={post.title}
                         loading="lazy"
                         className="h-48 w-full object-cover"
@@ -156,7 +163,8 @@ export default async function BoardCategoryPage({
                     </div>
                   </article>
                 </Link>
-              ))}
+                )
+              })}
             </div>
           )}
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Post } from '@/lib/types'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { SectionDivider } from '@/components/ui/SectionDivider'
+import { useSwipe } from '@/lib/useSwipe'
 
 /** 한 화면에 보여줄 사진 수 (모바일에서는 2열 2줄로 접힌다) */
 const PER_PAGE = 4
@@ -24,6 +25,8 @@ export function PhotoGallerySection({ photos }: { photos: Post[] }) {
 
   const next = useCallback(() => setCurrent(c => (c + 1) % count), [count])
   const prev = useCallback(() => setCurrent(c => (c - 1 + count) % count), [count])
+  // 태블릿·모바일 터치 스와이프로 페이지 이동
+  const swipe = useSwipe(next, prev)
 
   // 사진 수가 바뀌어 페이지가 줄어들면 활성 인덱스를 되돌린다. (렌더 중 상태 조정 패턴)
   const [prevCount, setPrevCount] = useState(count)
@@ -56,7 +59,7 @@ export function PhotoGallerySection({ photos }: { photos: Post[] }) {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-2xl touch-pan-y" {...swipe}>
             <div
               data-testid="photo-track"
               className="flex transition-transform duration-500 ease-in-out"

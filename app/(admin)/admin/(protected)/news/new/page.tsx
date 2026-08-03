@@ -2,13 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createPostAction } from '../../../post-actions'
 import { PostEditorForm } from '../../posts/PostEditorForm'
-import { ACTIVITY_TAGS } from '@/lib/boardCategories'
+import { getNewsCategoryLabels } from '@/lib/repositories/newsCategories'
 
 export const metadata: Metadata = { title: '새 소식' }
+export const dynamic = 'force-dynamic'
 
 const newsOption = [{ value: 'activity', label: '활동소식' }]
 
-export default function NewNewsPage() {
+export default async function NewNewsPage() {
+  const tagOptions = await getNewsCategoryLabels()
   return (
     <div className="max-w-3xl">
       <Link href="/admin/news" className="text-sm text-gray-400 hover:text-primary transition-colors">
@@ -21,7 +23,7 @@ export default function NewNewsPage() {
         categoryOptions={newsOption}
         cancelHref="/admin/news"
         categoryLabel="구분"
-        tagOptions={ACTIVITY_TAGS}
+        tagOptions={tagOptions}
       />
     </div>
   )

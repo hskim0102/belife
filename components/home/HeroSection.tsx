@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSwipe } from '@/lib/useSwipe'
 
 export interface HeroSlideItem {
   src: string
@@ -30,6 +31,8 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
     () => setCurrent(c => (c - 1 + count) % count),
     [count]
   )
+  // 태블릿·모바일 터치 스와이프로 슬라이드 이동
+  const swipe = useSwipe(next, prev)
 
   // Keep the active index valid if the slide count changes.
   useEffect(() => {
@@ -44,9 +47,10 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
 
   return (
     <section
-      className="relative overflow-hidden min-h-[520px]"
+      className="relative overflow-hidden min-h-[520px] touch-pan-y"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      {...swipe}
     >
       {/* 슬라이드 트랙 */}
       <div

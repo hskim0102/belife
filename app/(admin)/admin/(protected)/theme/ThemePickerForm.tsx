@@ -2,14 +2,34 @@
 
 import { useActionState, useState, type CSSProperties } from 'react'
 import { updateThemeAction, type ThemeFormState } from '../../theme-actions'
-import { THEME_KEYS, THEMES, paletteToCssVars, type ThemeKey } from '@/lib/theme'
+import {
+  BRIGHTNESS_STEP,
+  MAX_BRIGHTNESS,
+  MIN_BRIGHTNESS,
+  THEME_KEYS,
+  THEMES,
+  paletteToCssVars,
+  resolvePalette,
+  type ThemeKey,
+} from '@/lib/theme'
 import { cn } from '@/lib/cn'
 
-/** 테마 색상 선택 컴포넌트: 스와치 선택 → 미리보기 → 저장 */
-export function ThemePickerForm({ current }: { current: ThemeKey }) {
+/** 테마 색상 선택 컴포넌트: 색상 선택 + 밝기 슬라이더 → 미리보기 → 저장 */
+export function ThemePickerForm({
+  current,
+  currentBrightness,
+}: {
+  current: ThemeKey
+  currentBrightness: number
+}) {
   const [state, formAction, pending] = useActionState<ThemeFormState, FormData>(updateThemeAction, {})
   const [selected, setSelected] = useState<ThemeKey>(current)
-  const preview = THEMES[selected]
+  const [brightness, setBrightness] = useState<number>(currentBrightness)
+  const previewPalette = resolvePalette(selected, brightness)
+  const unchanged = selected === current && brightness === currentBrightness
+  // 슬라이더 트랙: 왼쪽(진하게)~오른쪽(연하게) 그라데이션
+  const strong = resolvePalette(selected, MIN_BRIGHTNESS)
+  const light = resolvePalette(selected, MAX_BRIGHTNESS)
 
   return (
     <form action={formAction} className="space-y-8">
@@ -19,6 +39,7 @@ export function ThemePickerForm({ current }: { current: ThemeKey }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {THEME_KEYS.map(key => {
             const theme = THEMES[key]
+            const swatch = resolvePalette(key, brightness)
             const isSelected = selected === key
             return (
               <label
@@ -38,19 +59,19 @@ export function ThemePickerForm({ current }: { current: ThemeKey }) {
                   onChange={() => setSelected(key)}
                   className="sr-only"
                 />
-                {/* 팔레트 미리보기 원 3개 */}
+                {/* 팔레트 미리보기 원 3개 (선택한 밝기 반영) */}
                 <span className="flex -space-x-2">
                   <span
                     className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: theme.palette.primary }}
+                    style={{ backgroundColor: swatch.primary }}
                   />
                   <span
                     className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: theme.palette.primaryAccent }}
+                    style={{ backgroundColor: swatch.primaryAccent }}
                   />
                   <span
                     className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: theme.palette.primaryLighter }}
+                    style={{ backgroundColor: swatch.primaryLighter }}
                   />
                 </span>
                 <span className="text-sm font-bold text-gray-900">{theme.label}</span>
@@ -66,12 +87,40 @@ export function ThemePickerForm({ current }: { current: ThemeKey }) {
         </div>
       </fieldset>
 
+      {/* 밝기 슬라이더 */}
+      <fieldset>
+        <div className="flex items-center justify-between mb-3">
+          <legend className="text-sm font-semibold text-gray-700">밝기</legend>
+          <span className="text-xs font-bold text-gray-500 tabular-nums">{brightness}</span>
+        </div>
+        <div className="max-w-md">
+          <input
+            type="range"
+            name="brightness"
+            min={MIN_BRIGHTNESS}
+            max={MAX_BRIGHTNESS}
+            step={BRIGHTNESS_STEP}
+            value={brightness}
+            onChange={e => setBrightness(Number(e.target.value))}
+            aria-label="밝기"
+            className="w-full h-3 appearance-none rounded-full cursor-pointer accent-gray-900"
+            style={{
+              background: `linear-gradient(to right, ${strong.primary}, ${light.primary})`,
+            }}
+          />
+          <div className="flex justify-between text-xs font-semibold text-gray-500 mt-2">
+            <span>진하게</span>
+            <span>연하게</span>
+          </div>
+        </div>
+      </fieldset>
+
       {/* 실시간 미리보기: 선택한 팔레트를 CSS 변수로 덮어쓴 샘플 UI */}
       <div>
         <p className="text-sm font-semibold text-gray-700 mb-3">미리보기</p>
         <div
           className="rounded-2xl border border-gray-200 overflow-hidden"
-          style={paletteToCssVars(preview.palette) as CSSProperties}
+          style={paletteToCssVars(previewPalette) as CSSProperties}
         >
           <div className="bg-gradient-to-r from-primary-darker via-primary-dark to-primary-darker px-5 py-2 text-white/80 text-xs">
             상단바 · 02-6080-5798
@@ -113,7 +162,7 @@ export function ThemePickerForm({ current }: { current: ThemeKey }) {
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={pending || selected === current}
+          disabled={pending || unchanged}
           className="px-6 py-2.5 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {pending ? '저장 중…' : '테마 저장'}

@@ -20,6 +20,7 @@ export function getCategoryLabel(category: string): string {
     press: '보도자료',
     award: '표창',
     calendar: '생명사랑 달력보기',
+    report: '연례보고',
   }
   return map[category] ?? category
 }

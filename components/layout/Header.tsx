@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { BOARD_CATEGORIES } from '@/lib/boardCategories'
+import { useNavMenu } from './NavMenuContext'
 
 interface NavChild {
   label: string
@@ -34,9 +35,6 @@ function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavIte
       href: '/programs',
       children: [
         { label: '전체 사업', href: '/programs' },
-        { label: '국내 사업', href: '/programs?category=domestic' },
-        { label: '해외 사업', href: '/programs?category=overseas' },
-        { label: '교육·연구 사업', href: '/programs?category=education' },
         ...programPages,
       ],
     },
@@ -65,8 +63,13 @@ export function Header({
   programPages?: NavChild[]
 }) {
   const navItems = buildNavItems(introPages, programPages)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [allMenuOpen, setAllMenuOpen] = useState(false)
+  // 전체메뉴 상태는 TopBar·Footer의 '사이트맵' 버튼과 공유하기 위해 컨텍스트에서 가져온다.
+  const {
+    mobileOpen: menuOpen,
+    setMobileOpen: setMenuOpen,
+    desktopOpen: allMenuOpen,
+    setDesktopOpen: setAllMenuOpen,
+  } = useNavMenu()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const pathname = usePathname()
 
@@ -75,12 +78,10 @@ export function Header({
     return pathname === base || pathname.startsWith(base + '/')
   }
 
-  // 페이지(경로)가 바뀌면 열려 있던 메뉴를 모두 닫는다. (렌더 중 상태 조정 패턴)
+  // 경로가 바뀌면 열려 있던 호버 서브메뉴를 닫는다. (전체메뉴는 Provider가 닫는다)
   const [prevPath, setPrevPath] = useState(pathname)
   if (pathname !== prevPath) {
     setPrevPath(pathname)
-    setAllMenuOpen(false)
-    setMenuOpen(false)
     setOpenMenu(null)
   }
 
@@ -96,6 +97,8 @@ export function Header({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
+    // setAllMenuOpen 은 안정적인 setState 디스패처이므로 deps 에서 제외한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allMenuOpen])
 
   return (

@@ -81,6 +81,8 @@ export interface PostsPageParams {
   tag?: string
   page?: number
   pageSize?: number
+  /** 본문(body)까지 조회. 동영상 목록에서 유튜브 썸네일을 파생할 때만 켠다(기본 false). */
+  includeBody?: boolean
 }
 
 export interface PostsPage {
@@ -120,8 +122,9 @@ export async function getPostsPage(params: PostsPageParams = {}): Promise<PostsP
   const safePage = Math.min(page, totalPages)
   const offset = (safePage - 1) * pageSize
 
+  const bodySelect = params.includeBody ? 'body' : 'NULL::text AS body'
   const rows = await query<PostRow>(
-    `SELECT id, slug, title, category, published_at, thumbnail, excerpt, NULL::text AS body, tags
+    `SELECT id, slug, title, category, published_at, thumbnail, excerpt, ${bodySelect}, tags
        FROM posts ${where}
        ORDER BY published_at DESC
        LIMIT $${args.length + 1} OFFSET $${args.length + 2}`,

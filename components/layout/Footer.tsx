@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { SitemapMenuButton } from './SitemapMenuButton'
 
 /** 하단 링크 줄에 사각 버튼으로 노출하는 외부 관련 기관 */
 const RELATED_SITES = [
@@ -71,9 +72,7 @@ export function Footer() {
               이용약관
             </Link>
             <span className="text-white/30 text-xs">|</span>
-            <Link href="/sitemap" className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded">
-              사이트맵
-            </Link>
+            <SitemapMenuButton className="text-xs text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50 rounded cursor-pointer" />
             <nav aria-label="관련 사이트" className="flex items-center gap-2">
               {RELATED_SITES.map(site => (
                 <a

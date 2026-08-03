@@ -43,12 +43,20 @@ export default async function AdminNewsPage({
           <h1 className="text-xl font-black text-gray-900">소식 관리</h1>
           <p className="text-sm text-gray-400 mt-1">활동소식 · 총 {total}개</p>
         </div>
-        <Link
-          href="/admin/news/new"
-          className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
-        >
-          + 새 소식
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/admin/news/categories"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-bold hover:bg-gray-200 transition-colors"
+          >
+            구분 관리
+          </Link>
+          <Link
+            href="/admin/news/new"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+          >
+            + 새 소식
+          </Link>
+        </div>
       </div>
 
       {/* 분류 태그 필터 */}

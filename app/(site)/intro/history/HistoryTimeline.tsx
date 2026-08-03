@@ -99,8 +99,9 @@ export function HistoryTimeline({ milestones }: { milestones: Milestone[] }) {
               <div className="overflow-hidden">
                 <ul className="space-y-4 pb-6 pt-1">
                   {months.map(({ month, items }) => (
-                    <li key={month} className="flex gap-4">
-                      <span className="shrink-0 w-11 pt-0.5 text-sm font-bold text-primary text-right">
+                    // 모바일: 월과 내용을 세로로 쌓아 내용 폭을 넓힌다. sm↑: 좌우 배치.
+                    <li key={month} className="flex flex-col sm:flex-row sm:gap-4">
+                      <span className="shrink-0 mb-1.5 sm:mb-0 sm:w-11 pt-0.5 text-sm font-bold text-primary sm:text-right">
                         {month}월
                       </span>
                       <ul className="flex-1 space-y-2">

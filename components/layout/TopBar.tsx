@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SitemapMenuButton } from './SitemapMenuButton'
 
 export function TopBar() {
   return (
@@ -28,9 +29,7 @@ export function TopBar() {
             이용약관
           </Link>
           <span className="text-white/30 text-xs">|</span>
-          <Link href="/sitemap" className="text-xs text-white/80 hover:text-white transition-colors">
-            사이트맵
-          </Link>
+          <SitemapMenuButton className="text-xs text-white/80 hover:text-white transition-colors cursor-pointer" />
         </div>
       </div>
     </div>

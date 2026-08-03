@@ -23,6 +23,7 @@ export interface BoardCategoryDef {
 
 export const BOARD_CATEGORIES: BoardCategoryDef[] = [
   { key: 'notice',   label: '공지사항',            layout: 'list', emoji: '📢', chip: 'bg-blue-100 text-blue-700' },
+  { key: 'report',   label: '연례보고',            layout: 'card', emoji: '📊', chip: 'bg-indigo-100 text-indigo-700' },
   { key: 'photo',    label: '사진게시판',          layout: 'card', emoji: '📸', chip: 'bg-rose-100 text-rose-700' },
   { key: 'webzine',  label: '웹진',                layout: 'card', group: '홍보자료', emoji: '📰', chip: 'bg-amber-100 text-amber-700' },
   { key: 'video',    label: '동영상',              layout: 'card', group: '홍보자료', emoji: '🎬', chip: 'bg-purple-100 text-purple-700' },

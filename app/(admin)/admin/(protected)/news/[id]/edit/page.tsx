@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPostById } from '@/lib/repositories/posts'
 import { updatePostAction } from '../../../../post-actions'
 import { PostEditorForm } from '../../../posts/PostEditorForm'
-import { ACTIVITY_TAGS } from '@/lib/boardCategories'
+import { getNewsCategoryLabels } from '@/lib/repositories/newsCategories'
 
 export const metadata: Metadata = { title: '소식 수정' }
 
@@ -24,6 +24,8 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
   // 소식 관리에서는 활동소식만 다룬다.
   if (!post || post.category !== 'activity') notFound()
 
+  const tagOptions = await getNewsCategoryLabels()
+
   return (
     <div className="max-w-3xl">
       <div className="flex items-center justify-between">
@@ -42,7 +44,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
         categoryOptions={newsOption}
         cancelHref="/admin/news"
         categoryLabel="구분"
-        tagOptions={ACTIVITY_TAGS}
+        tagOptions={tagOptions}
       />
     </div>
   )

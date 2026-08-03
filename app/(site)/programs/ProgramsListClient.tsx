@@ -9,9 +9,6 @@ import { cn } from '@/lib/cn'
 
 const tabs = [
   { key: 'all', label: '전체' },
-  { key: 'domestic', label: '국내' },
-  { key: 'overseas', label: '해외' },
-  { key: 'education', label: '교육' },
 ]
 
 const categoryStyles: Record<string, { badge: string; strip: string; icon: string }> = {
