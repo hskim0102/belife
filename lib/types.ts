@@ -19,6 +19,10 @@ export interface HeroSlide {
   id: number
   imageUrl: string
   alt: string
+  /** 메인에 표시할 문구(제목). 없으면 홈은 기본 문구로 폴백. 줄바꿈 허용. */
+  title: string | null
+  /** 제목 아래 설명 문구. 없으면 기본 문구로 폴백. 줄바꿈 허용. */
+  subtitle: string | null
   order: number
   published: boolean
   blobPathname: string | null

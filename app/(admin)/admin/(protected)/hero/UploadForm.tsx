@@ -36,6 +36,32 @@ export function UploadForm() {
       </div>
 
       <div>
+        <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1.5">
+          메인 문구 <span className="font-normal text-gray-400">(이 사진 위에 크게 표시, 선택 · 줄바꿈 가능)</span>
+        </label>
+        <textarea
+          id="title"
+          name="title"
+          rows={3}
+          placeholder={'예:\n존엄한 생명의\n아름다움을\n꽃 피웁니다'}
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-y"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="subtitle" className="block text-sm font-semibold text-gray-700 mb-1.5">
+          설명 문구 <span className="font-normal text-gray-400">(제목 아래 작은 글씨, 선택)</span>
+        </label>
+        <textarea
+          id="subtitle"
+          name="subtitle"
+          rows={2}
+          placeholder="예: 저소득 어르신, 취약계층 어린이와 함께합니다."
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-y"
+        />
+      </div>
+
+      <div>
         <label htmlFor="alt" className="block text-sm font-semibold text-gray-700 mb-1.5">
           대체 텍스트 <span className="font-normal text-gray-400">(접근성·SEO용, 선택)</span>
         </label>
@@ -48,6 +74,8 @@ export function UploadForm() {
           className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
         />
       </div>
+
+      <p className="text-xs text-gray-400">문구를 비워 두면 홈 화면은 기본 문구를 표시합니다.</p>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 

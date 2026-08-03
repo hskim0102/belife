@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getAllHeroSlides } from '@/lib/repositories/heroSlides'
 import { UploadForm } from './UploadForm'
 import { SlideDeleteButton } from './SlideDeleteButton'
-import { toggleHeroSlideAction, moveHeroSlideAction } from '../../hero-actions'
+import { toggleHeroSlideAction, moveHeroSlideAction, updateHeroSlideTextAction } from '../../hero-actions'
 
 export const metadata: Metadata = { title: '메인 배너 관리' }
 export const dynamic = 'force-dynamic'
@@ -34,7 +34,7 @@ export default async function AdminHeroPage() {
             {slides.map((slide, i) => (
               <div
                 key={slide.id}
-                className="flex items-center gap-4 bg-white rounded-xl border border-gray-100 p-3"
+                className="flex items-start gap-4 bg-white rounded-xl border border-gray-100 p-3"
               >
                 {/* Thumbnail */}
                 <div className="relative w-32 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
@@ -47,7 +47,7 @@ export default async function AdminHeroPage() {
                   )}
                 </div>
 
-                {/* Info */}
+                {/* Info + 문구 편집 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-gray-400">#{i + 1}</span>
@@ -57,11 +57,47 @@ export default async function AdminHeroPage() {
                       <span className="text-xs font-semibold text-gray-400">비공개</span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-sm text-gray-700 truncate">{slide.alt || '(대체 텍스트 없음)'}</p>
+
+                  <form action={updateHeroSlideTextAction} className="mt-2 space-y-2">
+                    <input type="hidden" name="id" value={slide.id} />
+                    <textarea
+                      name="title"
+                      rows={2}
+                      defaultValue={slide.title ?? ''}
+                      placeholder="메인 문구(제목) · 비우면 기본 문구 · 줄바꿈 가능"
+                      aria-label={`슬라이드 ${i + 1} 메인 문구`}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-y"
+                    />
+                    <textarea
+                      name="subtitle"
+                      rows={2}
+                      defaultValue={slide.subtitle ?? ''}
+                      placeholder="설명 문구(제목 아래 작은 글씨)"
+                      aria-label={`슬라이드 ${i + 1} 설명 문구`}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-y"
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        name="alt"
+                        type="text"
+                        maxLength={255}
+                        defaultValue={slide.alt}
+                        placeholder="대체 텍스트(접근성)"
+                        aria-label={`슬라이드 ${i + 1} 대체 텍스트`}
+                        className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                      />
+                      <button
+                        type="submit"
+                        className="shrink-0 px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+                      >
+                        문구 저장
+                      </button>
+                    </div>
+                  </form>
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex flex-col items-center gap-1 shrink-0">
                   {/* Move up */}
                   <form action={moveHeroSlideAction}>
                     <input type="hidden" name="id" value={slide.id} />

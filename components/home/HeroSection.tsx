@@ -8,6 +8,20 @@ import { useSwipe } from '@/lib/useSwipe'
 export interface HeroSlideItem {
   src: string
   alt: string
+  /** 이 사진에 표시할 메인 문구(제목). 없으면 기본 문구로 폴백. 줄바꿈 허용. */
+  title?: string | null
+  /** 제목 아래 설명 문구. 없으면 기본 문구로 폴백. */
+  subtitle?: string | null
+}
+
+/** 줄바꿈(\n)을 <br>로 렌더링 */
+function multiline(text: string) {
+  return text.split('\n').map((line, i, arr) => (
+    <span key={i}>
+      {line}
+      {i < arr.length - 1 && <br />}
+    </span>
+  ))
 }
 
 // Used when no slides are configured in the database yet.
@@ -22,6 +36,8 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
   const count = slides.length
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
+  // 현재 표시 중인 슬라이드(문구 오버레이에 사용). 인덱스가 잠깐 범위를 벗어나도 안전하게.
+  const active = slides[current] ?? slides[0]
 
   const next = useCallback(
     () => setCurrent(c => (c + 1) % count),
@@ -83,14 +99,26 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
               <span className="inline-block w-5 h-0.5 bg-primary-accent" />
               창립 23주년 · 의료복지 비영리단체
             </p>
-            <h1 className="text-5xl md:text-6xl font-black text-white leading-[1.1] mb-5 tracking-tight">
-              존엄한 생명의<br />
-              <em className="not-italic text-primary-accent">아름다움</em>을<br />
-              꽃 피웁니다
+            <h1 className="text-5xl md:text-6xl font-black text-white leading-[1.1] mb-5 tracking-tight whitespace-pre-line">
+              {active?.title ? (
+                multiline(active.title)
+              ) : (
+                <>
+                  존엄한 생명의<br />
+                  <em className="not-italic text-primary-accent">아름다움</em>을<br />
+                  꽃 피웁니다
+                </>
+              )}
             </h1>
             <p className="text-white/65 text-base leading-relaxed mb-8">
-              저소득 어르신, 취약계층 어린이, 이주민,<br />
-              그리고 해외 빈민까지 — 생명을 사랑하는 의료로 함께합니다.
+              {active?.subtitle ? (
+                multiline(active.subtitle)
+              ) : active?.title ? null : (
+                <>
+                  저소득 어르신, 취약계층 어린이, 이주민,<br />
+                  그리고 해외 빈민까지 — 생명을 사랑하는 의료로 함께합니다.
+                </>
+              )}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/support">

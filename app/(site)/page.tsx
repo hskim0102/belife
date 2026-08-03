@@ -28,7 +28,7 @@ export default async function HomePage() {
     getPublishedHeroSlides(),
   ])
 
-  const slides = heroSlides.map(s => ({ src: s.imageUrl, alt: s.alt }))
+  const slides = heroSlides.map(s => ({ src: s.imageUrl, alt: s.alt, title: s.title, subtitle: s.subtitle }))
 
   return (
     <>

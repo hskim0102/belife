@@ -10,6 +10,7 @@ import {
   getHeroSlideById,
   setHeroSlidePublished,
   moveHeroSlide,
+  updateHeroSlideText,
 } from '@/lib/repositories/heroSlides'
 import type { FormState } from './actions'
 
@@ -29,6 +30,8 @@ export async function uploadHeroSlideAction(_prev: FormState, formData: FormData
 
   const file = formData.get('image')
   const alt = String(formData.get('alt') ?? '').trim()
+  const title = String(formData.get('title') ?? '').trim()
+  const subtitle = String(formData.get('subtitle') ?? '').trim()
 
   if (!(file instanceof File)) {
     return { error: '이미지 파일을 선택해 주세요.' }
@@ -45,10 +48,27 @@ export async function uploadHeroSlideAction(_prev: FormState, formData: FormData
   await createHeroSlide({
     imageUrl: uploaded.url,
     alt: alt || '메인 배너 이미지',
+    title: title || null,
+    subtitle: subtitle || null,
     blobPathname: uploaded.pathname,
   })
 
   refreshHero()
+  redirect('/admin/hero')
+}
+
+/** 기존 슬라이드의 메인 문구(제목·설명)·대체 텍스트 수정 */
+export async function updateHeroSlideTextAction(formData: FormData): Promise<void> {
+  await requireAuth()
+  const id = Number(formData.get('id'))
+  if (Number.isInteger(id) && id > 0) {
+    await updateHeroSlideText(id, {
+      title: String(formData.get('title') ?? ''),
+      subtitle: String(formData.get('subtitle') ?? ''),
+      alt: String(formData.get('alt') ?? ''),
+    })
+    refreshHero()
+  }
   redirect('/admin/hero')
 }
 
