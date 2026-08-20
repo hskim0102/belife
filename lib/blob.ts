@@ -1,7 +1,9 @@
 import 'server-only'
 import { put, del } from '@vercel/blob'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from '@/lib/uploadLimits'
 
-const MAX_BYTES = 8 * 1024 * 1024 // 8 MB
+// 상한은 lib/uploadLimits.ts 한 곳에서 관리한다(클라이언트 폼과 공유).
+const MAX_BYTES = MAX_UPLOAD_BYTES
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif']
 
 export class UploadError extends Error {}
@@ -27,7 +29,7 @@ export async function uploadHeroImage(file: File): Promise<UploadedImage> {
     throw new UploadError('JPG, PNG, WEBP, AVIF, GIF 형식의 이미지만 업로드할 수 있습니다.')
   }
   if (file.size > MAX_BYTES) {
-    throw new UploadError('이미지 용량은 8MB 이하여야 합니다.')
+    throw new UploadError(`이미지 용량은 ${MAX_UPLOAD_LABEL} 이하여야 합니다.`)
   }
   if (!hasToken()) {
     throw new UploadError(
@@ -58,7 +60,7 @@ export async function uploadPostImage(file: File): Promise<UploadedImage> {
     throw new UploadError('JPG, PNG, WEBP, AVIF, GIF 형식의 이미지만 업로드할 수 있습니다.')
   }
   if (file.size > MAX_BYTES) {
-    throw new UploadError('이미지 용량은 8MB 이하여야 합니다.')
+    throw new UploadError(`이미지 용량은 ${MAX_UPLOAD_LABEL} 이하여야 합니다.`)
   }
   if (!hasToken()) {
     throw new UploadError(
@@ -87,7 +89,7 @@ export async function uploadLocationImage(file: File): Promise<UploadedImage> {
     throw new UploadError('JPG, PNG, WEBP, AVIF, GIF 형식의 이미지만 업로드할 수 있습니다.')
   }
   if (file.size > MAX_BYTES) {
-    throw new UploadError('이미지 용량은 8MB 이하여야 합니다.')
+    throw new UploadError(`이미지 용량은 ${MAX_UPLOAD_LABEL} 이하여야 합니다.`)
   }
   if (!hasToken()) {
     throw new UploadError(
@@ -160,7 +162,7 @@ export async function uploadPostFile(file: File): Promise<UploadedFile> {
     )
   }
   if (file.size > MAX_BYTES) {
-    throw new UploadError('첨부파일 용량은 8MB 이하여야 합니다.')
+    throw new UploadError(`첨부파일 용량은 ${MAX_UPLOAD_LABEL} 이하여야 합니다.`)
   }
   if (!hasToken()) {
     throw new UploadError(

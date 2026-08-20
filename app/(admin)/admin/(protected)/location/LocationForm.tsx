@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from 'react'
 import type { LocationSettings } from '@/lib/repositories/location'
 import { TiptapEditor } from '@/components/admin/TiptapEditor'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, formatFileSize } from '@/lib/uploadLimits'
 import { updateLocationAction, type LocationFormState } from '../../location-actions'
 
 const inputClass =
@@ -16,7 +17,18 @@ export function LocationForm({ current }: { current: LocationSettings }) {
     {},
   )
   const [fileName, setFileName] = useState('')
+  // 용량 초과는 서버 액션 실행 전에 요청이 끊겨(500) 서버에서 안내할 수 없어 여기서 막는다.
+  const [sizeError, setSizeError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const onPick = (file: File | undefined) => {
+    setFileName(file?.name ?? '')
+    setSizeError(
+      file && file.size > MAX_UPLOAD_BYTES
+        ? `이미지 용량이 ${formatFileSize(file.size)} 입니다. ${MAX_UPLOAD_LABEL} 이하로 줄여서 올려 주세요.`
+        : '',
+    )
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -129,9 +141,12 @@ export function LocationForm({ current }: { current: LocationSettings }) {
                 name="mapImageFile"
                 accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
                 className="hidden"
-                onChange={e => setFileName(e.target.files?.[0]?.name ?? '')}
+                onChange={e => onPick(e.target.files?.[0])}
               />
-              <p className="mt-1.5 text-xs text-gray-400">JPG·PNG·WEBP·AVIF·GIF, 최대 8MB.</p>
+              <p className="mt-1.5 text-xs text-gray-400">
+                JPG·PNG·WEBP·AVIF·GIF, 최대 {MAX_UPLOAD_LABEL}.
+              </p>
+              {sizeError && <p className="mt-1.5 text-sm text-red-600">{sizeError}</p>}
             </div>
 
             <div>
@@ -158,7 +173,7 @@ export function LocationForm({ current }: { current: LocationSettings }) {
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || Boolean(sizeError)}
           className="px-6 py-2.5 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {pending ? '저장 중…' : '저장'}

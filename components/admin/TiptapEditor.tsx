@@ -340,7 +340,7 @@ function Toolbar({
       </button>
       <button
         type="button"
-        title="첨부파일 (PDF·한글·오피스·이미지, 8MB 이하, 여러 개 선택 가능)"
+        title="첨부파일 (PDF·한글·오피스·이미지, 4MB 이하, 여러 개 선택 가능)"
         onClick={onPickAttachment}
         disabled={attaching}
         className="px-2.5 h-8 rounded text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"

@@ -3,11 +3,26 @@
 import { useActionState, useRef, useState } from 'react'
 import { uploadHeroSlideAction } from '../../hero-actions'
 import type { FormState } from '../../actions'
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL, formatFileSize } from '@/lib/uploadLimits'
 
 export function UploadForm() {
   const [state, formAction, pending] = useActionState<FormState, FormData>(uploadHeroSlideAction, {})
   const [fileName, setFileName] = useState('')
+  // 용량 초과는 서버 액션이 실행되기도 전에 요청이 끊겨(500) 서버에서 안내할 수 없다.
+  // 그래서 파일을 고른 순간 여기서 막는다.
+  const [sizeError, setSizeError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const onPick = (file: File | undefined) => {
+    setFileName(file?.name ?? '')
+    if (file && file.size > MAX_UPLOAD_BYTES) {
+      setSizeError(
+        `사진 용량이 ${formatFileSize(file.size)} 입니다. ${MAX_UPLOAD_LABEL} 이하로 줄여서 올려 주세요.`,
+      )
+    } else {
+      setSizeError('')
+    }
+  }
 
   return (
     <form action={formAction} className="bg-white rounded-xl border border-gray-100 p-5 space-y-4">
@@ -30,9 +45,12 @@ export function UploadForm() {
           accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
           required
           className="hidden"
-          onChange={e => setFileName(e.target.files?.[0]?.name ?? '')}
+          onChange={e => onPick(e.target.files?.[0])}
         />
-        <p className="mt-1.5 text-xs text-gray-400">JPG·PNG·WEBP·AVIF·GIF, 최대 8MB. 권장 비율 가로형(약 1920×1040).</p>
+        <p className="mt-1.5 text-xs text-gray-400">
+          JPG·PNG·WEBP·AVIF·GIF, 최대 {MAX_UPLOAD_LABEL}. 권장 비율 가로형(약 1920×1040).
+        </p>
+        {sizeError && <p className="mt-1.5 text-sm text-red-600">{sizeError}</p>}
       </div>
 
       <div>
@@ -81,7 +99,7 @@ export function UploadForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || Boolean(sizeError)}
         className="px-6 py-2.5 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {pending ? '업로드 중…' : '슬라이드 추가'}
