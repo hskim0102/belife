@@ -6,7 +6,7 @@ import { updatePostAction } from '../../../../post-actions'
 import { PostEditorForm } from '../../../posts/PostEditorForm'
 import { getNewsCategoryLabels } from '@/lib/repositories/newsCategories'
 
-export const metadata: Metadata = { title: '소식 수정' }
+export const metadata: Metadata = { title: '활동소식 수정' }
 
 const newsOption = [{ value: 'activity', label: '활동소식' }]
 
@@ -21,7 +21,7 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
   if (!numId) notFound()
 
   const post = await getPostById(numId)
-  // 소식 관리에서는 활동소식만 다룬다.
+  // 활동소식 관리에서는 활동소식만 다룬다.
   if (!post || post.category !== 'activity') notFound()
 
   const tagOptions = await getNewsCategoryLabels()
@@ -33,10 +33,10 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
           ← 목록으로
         </Link>
         <Link href={`/news/${post.slug}`} target="_blank" className="text-sm text-gray-400 hover:text-primary transition-colors">
-          소식 보기 ↗
+          활동소식 보기 ↗
         </Link>
       </div>
-      <h1 className="mt-3 mb-6 text-xl font-black text-gray-900">소식 수정</h1>
+      <h1 className="mt-3 mb-6 text-xl font-black text-gray-900">활동소식 수정</h1>
       <PostEditorForm
         action={updatePostAction}
         post={post}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import type { Post } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 
-const tabs = ['공지사항', '소식', '보도자료'] as const
+const tabs = ['공지사항', '활동소식', '보도자료'] as const
 type Tab = typeof tabs[number]
 
 interface NoticePanelProps {
@@ -19,7 +19,7 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
 
   const items = {
     '공지사항': noticePost,
-    '소식': newsPost,
+    '활동소식': newsPost,
     '보도자료': pressPost,
   }
 
@@ -105,7 +105,7 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
       </ul>
       <div className="p-4">
         <Link
-          href={activeTab === '공지사항' ? '/board/notice' : activeTab === '소식' ? '/news' : '/board/press'}
+          href={activeTab === '공지사항' ? '/board/notice' : activeTab === '활동소식' ? '/news' : '/board/press'}
           className="block text-center text-xs text-gray-400 font-semibold hover:text-primary-darker transition-colors"
         >
           전체 보기 →

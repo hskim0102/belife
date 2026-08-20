@@ -4,7 +4,7 @@ import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
 import { formatDate } from '@/lib/utils'
 import { RowActions } from '@/components/admin/RowActions'
 
-export const metadata: Metadata = { title: '소식 관리' }
+export const metadata: Metadata = { title: '활동소식 관리' }
 export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 20
@@ -40,8 +40,8 @@ export default async function AdminNewsPage({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-black text-gray-900">소식 관리</h1>
-          <p className="text-sm text-gray-400 mt-1">활동소식 · 총 {total}개</p>
+          <h1 className="text-xl font-black text-gray-900">활동소식 관리</h1>
+          <p className="text-sm text-gray-400 mt-1">총 {total}개</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Link
@@ -54,7 +54,7 @@ export default async function AdminNewsPage({
             href="/admin/news/new"
             className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
           >
-            + 새 소식
+            + 새 활동소식
           </Link>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default async function AdminNewsPage({
             {posts.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-16 text-center text-gray-400">
-                  등록된 소식이 없습니다.
+                  등록된 활동소식이 없습니다.
                 </td>
               </tr>
             )}

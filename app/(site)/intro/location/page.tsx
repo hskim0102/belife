@@ -1,30 +1,51 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { PageHero } from '@/components/ui/PageHero'
+import { getLocationSettings } from '@/lib/repositories/location'
+import { sanitizePostBody } from '@/lib/sanitize'
 
 export const metadata: Metadata = { title: '오시는 길' }
 
 export const revalidate = 60
 
-// 표시 주소 (지도 위치와 일치)
-const ADDRESS = '서울시 강북구 인수봉로55가길 16-15 하늘평화센터 2층'
-// 지도/내비게이션 검색용 도로명 주소
-const MAP_QUERY = '서울시 강북구 인수봉로55가길 16-15'
-// Google 지도 임베드(pb 방식, API 키 불필요). 인수봉로55가길 일대를 중심으로 표시.
-// !1d=줌(작을수록 확대) !2d=경도 !3d=위도
-const MAP_PB =
-  '!1m18!1m12!1m3!1d3162!2d127.0098867!3d37.6359269!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z!5e0!3m2!1sko!2skr!4v1700000000000!5m2!1sko!2skr'
+/** 관리자가 입력한 안내 본문(HTML)을 담는 카드. 내용이 없으면 렌더링하지 않는다. */
+function BodyCard({ html }: { html: string }) {
+  if (!html) return null
+  return (
+    <div
+      className="bg-gray-50 rounded-2xl p-6 border border-gray-100 prose max-w-none prose-headings:text-base prose-headings:font-bold prose-headings:text-primary-dark prose-headings:mt-6 prose-headings:mb-2 prose-headings:first:mt-0 prose-p:text-gray-600 prose-p:leading-relaxed prose-strong:text-gray-800 prose-img:rounded-xl"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
 
-export default function LocationPage() {
-  const address = ADDRESS
-  const mapSrc = `https://www.google.com/maps/embed?pb=${MAP_PB}`
+/** 섹션 번호가 붙은 제목 */
+function SectionTitle({ no, children }: { no: number; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <span className="w-9 h-9 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">
+        {no}
+      </span>
+      <h2 className="text-2xl font-black text-gray-900">{children}</h2>
+    </div>
+  )
+}
+
+export default async function LocationPage() {
+  const location = await getLocationSettings()
+  const transitBody = sanitizePostBody(location.transitBody)
+  const carBody = sanitizePostBody(location.carBody)
+  // 비어 있는 항목은 건너뛰고 남은 항목에만 1·2·3 번호를 붙인다.
+  const sectionNo = (() => {
+    let n = 0
+    return { transit: transitBody ? ++n : 0, car: carBody ? ++n : 0, map: location.mapImage ? ++n : 0 }
+  })()
 
   return (
     <>
       <PageHero
         label="Location"
         title="오시는 길"
-        subtitle="아름다운생명사랑을 찾아오시는 방법을 안내해 드립니다."
+        subtitle={location.heroSubtitle}
         icon="📍"
         maxWidth="max-w-4xl"
       />
@@ -36,7 +57,7 @@ export default function LocationPage() {
             <div className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
               <iframe
                 title="아름다운생명사랑 위치 지도"
-                src={mapSrc}
+                src={location.mapEmbed}
                 className="w-full h-[380px] md:h-[460px] block"
                 loading="lazy"
                 allowFullScreen
@@ -63,11 +84,11 @@ export default function LocationPage() {
                 </div>
                 <div>
                   <p className="text-xs font-bold text-primary uppercase tracking-wide mb-1">주소</p>
-                  <p className="text-gray-900 font-bold text-lg leading-snug">{address}</p>
+                  <p className="text-gray-900 font-bold text-lg leading-snug">{location.address}</p>
                 </div>
               </div>
               <a
-                href={`https://map.kakao.com/link/search/${encodeURIComponent(MAP_QUERY)}`}
+                href={`https://map.kakao.com/link/search/${encodeURIComponent(location.mapQuery)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-1.5 bg-primary-darker text-white font-bold text-sm px-5 py-3 rounded-xl hover:bg-primary-dark transition-colors shrink-0"
@@ -81,69 +102,32 @@ export default function LocationPage() {
           </section>
 
           {/* 1. 대중교통 이용시 */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-9 h-9 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">
-                1
-              </span>
-              <h2 className="text-2xl font-black text-gray-900">대중교통 이용시</h2>
-            </div>
-            <div className="space-y-5">
-              <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                <p className="font-bold text-primary-dark mb-2">1) 지하철 4호선 수유역</p>
-                <p className="text-gray-600 leading-relaxed">
-                  3번 출구 앞 마을버스 <b className="text-gray-800">강북02</b> 승차 → 세븐일레븐 정류장(구 형제슈퍼)
-                  하차 → 세븐일레븐 골목 200m 직진 → 동익빌라 앞에서 우회전
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                <p className="font-bold text-primary-dark mb-2">2) 우이신설 경전철 화계역</p>
-                <p className="text-gray-600 leading-relaxed">
-                  2번 출구 하차 → 송암교회 방면으로 횡단보도를 건넌 후, 이디야 앞{' '}
-                  <b className="text-gray-800">송암교회·화계사거리(09-803)</b> 정류장에서 마을버스{' '}
-                  <b className="text-gray-800">강북02</b> 승차 → 세븐일레븐 정류장(구 형제슈퍼) 하차 → 세븐일레븐
-                  골목 200m 직진 → 동익빌라 앞에서 우회전
-                </p>
-              </div>
-            </div>
-          </section>
+          {transitBody && (
+            <section>
+              <SectionTitle no={sectionNo.transit}>대중교통 이용시</SectionTitle>
+              <BodyCard html={transitBody} />
+            </section>
+          )}
 
           {/* 2. 자동차 이용시 */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-9 h-9 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">
-                2
-              </span>
-              <h2 className="text-2xl font-black text-gray-900">자동차 이용시</h2>
-            </div>
-            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-gray-600 leading-relaxed">
-              <p>
-                내비게이션에 <b className="text-gray-800">‘{MAP_QUERY}’</b>를 입력해 주세요.
-              </p>
-              <p className="mt-2 text-sm text-gray-500">
-                ※ 주차 공간이 협소하니 가급적 대중교통 이용을 권장드립니다.
-              </p>
-            </div>
-          </section>
+          {carBody && (
+            <section>
+              <SectionTitle no={sectionNo.car}>자동차 이용시</SectionTitle>
+              <BodyCard html={carBody} />
+            </section>
+          )}
 
           {/* 3. 약도 */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-9 h-9 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">
-                3
-              </span>
-              <h2 className="text-2xl font-black text-gray-900">약도</h2>
-            </div>
-            <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white p-2">
-              <Image
-                src="/directions-map.png"
-                alt="아름다운생명사랑 찾아오시는 약도 — 수유역 3번 출구 또는 화계역 2번 출구에서 마을버스 강북02 승차 후 세븐일레븐(구 형제슈퍼) 정류장 하차, 도보 200m"
-                width={1417}
-                height={1360}
-                className="w-full h-auto"
-              />
-            </div>
-          </section>
+          {location.mapImage && (
+            <section>
+              <SectionTitle no={sectionNo.map}>약도</SectionTitle>
+              <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white p-2">
+                {/* 관리자가 올린 외부(Blob) 이미지도 들어오므로 next/image 대신 일반 img 사용 */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={location.mapImage} alt={location.mapImageAlt} className="w-full h-auto" />
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </>

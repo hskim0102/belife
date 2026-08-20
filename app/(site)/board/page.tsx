@@ -10,10 +10,6 @@ export const revalidate = 60
 export default async function BoardLandingPage() {
   const counts = await getCategoryCounts(BOARD_CATEGORY_KEYS)
 
-  // 단독 게시판(공지사항·사진게시판)과 홍보자료 묶음을 구분해 보여준다.
-  const standalone = BOARD_CATEGORIES.filter(c => !c.group)
-  const promo = BOARD_CATEGORIES.filter(c => c.group === '홍보자료')
-
   const Card = ({ cat }: { cat: (typeof BOARD_CATEGORIES)[number] }) => (
     <Link
       href={`/board/${cat.key}`}
@@ -37,26 +33,13 @@ export default async function BoardLandingPage() {
       <PageHero label="Board" title="게시판" icon="📋" maxWidth="max-w-5xl" />
 
       <div className="py-16 px-6">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <section>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {standalone.map(cat => (
-                <Card key={cat.key} cat={cat} />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-5 bg-primary rounded-full" />
-              홍보자료
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {promo.map(cat => (
-                <Card key={cat.key} cat={cat} />
-              ))}
-            </div>
-          </section>
+        <div className="max-w-5xl mx-auto">
+          {/* 메뉴와 같은 순서(BOARD_CATEGORIES)로 한 줄에 펼친다. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {BOARD_CATEGORIES.map(cat => (
+              <Card key={cat.key} cat={cat} />
+            ))}
+          </div>
         </div>
       </div>
     </>

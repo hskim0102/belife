@@ -149,16 +149,38 @@ export async function getCategoryCounts(
   return Object.fromEntries(rows.map(r => [r.category, r.n]))
 }
 
-/** 활동소식 분류 태그 목록과 글 수(탭 구성용). 글 많은 순. */
+/** news_categories 마이그레이션 미적용(테이블 없음) 판별 */
+function isMissingTable(err: unknown): boolean {
+  return typeof err === 'object' && err !== null && (err as { code?: string }).code === '42P01'
+}
+
+const ACTIVITY_TAG_COUNTS = `
+  SELECT unnest(tags) AS tag, count(*)::int AS count
+    FROM posts
+   WHERE category = 'activity' AND cardinality(tags) > 0
+   GROUP BY tag`
+
+/**
+ * 활동소식 분류 태그 목록과 글 수(탭 구성용).
+ * 구분 관리(news_categories)에서 정한 정렬 순서를 따르고,
+ * 구분에 등록되지 않은 태그(과거 데이터)는 뒤에 글 많은 순으로 붙는다.
+ */
 export async function getActivityTagCounts(): Promise<{ tag: string; count: number }[]> {
-  const rows = await query<{ tag: string; count: number }>(
-    `SELECT unnest(tags) AS tag, count(*)::int AS count
-       FROM posts
-      WHERE category = 'activity' AND cardinality(tags) > 0
-      GROUP BY tag
-      ORDER BY count DESC, tag`,
-  )
-  return rows.map(r => ({ tag: r.tag, count: r.count }))
+  try {
+    const rows = await query<{ tag: string; count: number }>(
+      `SELECT t.tag, t.count
+         FROM (${ACTIVITY_TAG_COUNTS}) t
+         LEFT JOIN news_categories c ON c.label = t.tag
+        ORDER BY (c.id IS NULL), c.sort_order, c.id, t.count DESC, t.tag`,
+    )
+    return rows.map(r => ({ tag: r.tag, count: r.count }))
+  } catch (err) {
+    if (!isMissingTable(err)) throw err
+    const rows = await query<{ tag: string; count: number }>(
+      `${ACTIVITY_TAG_COUNTS} ORDER BY count DESC, tag`,
+    )
+    return rows.map(r => ({ tag: r.tag, count: r.count }))
+  }
 }
 
 // ── 관리자 CRUD (게시판 글 작성/수정/삭제) ──────────────────────────────────

@@ -31,7 +31,7 @@ export function NewsSection({
         <div className="p-8 border-r border-gray-200">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-black text-primary-darker flex items-center gap-3">
-              현장 이야기
+              활동소식
               <span className="inline-block w-7 h-0.5 bg-primary-darker" />
             </h2>
             <Link href="/news" className="text-xs text-gray-400 font-semibold hover:text-primary-darker transition-colors">
@@ -39,7 +39,7 @@ export function NewsSection({
             </Link>
           </div>
           {posts.length === 0 ? (
-            <p className="col-span-2 text-center text-text-subtle py-10">등록된 소식이 없습니다.</p>
+            <p className="col-span-2 text-center text-text-subtle py-10">등록된 활동소식이 없습니다.</p>
           ) : (
             <div className="grid grid-cols-2 gap-4">
               {posts.map((post, i) => (

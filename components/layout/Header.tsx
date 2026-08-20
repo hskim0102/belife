@@ -33,13 +33,11 @@ function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavIte
     {
       label: '사업 소개',
       href: '/programs',
-      children: [
-        { label: '전체 사업', href: '/programs' },
-        ...programPages,
-      ],
+      // 등록된 사업 목록을 그대로 펼친다. (조회 실패 등으로 비면 전체 사업 링크로 대체)
+      children: programPages.length ? programPages : [{ label: '전체 사업', href: '/programs' }],
     },
     {
-      label: '소식',
+      label: '활동소식',
       href: '/news',
     },
     {

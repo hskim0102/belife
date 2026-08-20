@@ -22,7 +22,7 @@ describe('Header', () => {
     renderHeader()
     expect(screen.getByText('아름다운생명사랑은')).toBeInTheDocument()
     expect(screen.getByText('사업 소개')).toBeInTheDocument()
-    expect(screen.getByText('소식')).toBeInTheDocument()
+    expect(screen.getByText('활동소식')).toBeInTheDocument()
     expect(screen.getByText('후원·참여')).toBeInTheDocument()
     expect(screen.getByText('문의')).toBeInTheDocument()
   })

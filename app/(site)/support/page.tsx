@@ -12,7 +12,7 @@ export default function SupportPage() {
       <PageHero
         label="Support"
         title="후원·참여"
-        subtitle={<>아름다운생명사랑은 공익법인(구 지정기부금단체)으로<br />후원금에 대해 세액공제 혜택이 주어집니다.</>}
+        subtitle={<>아름다운생명사랑은 일반기부금단체로 지정된 공익법인으로<br />후원금에 대해 세액공제 혜택이 주어집니다.</>}
         icon="❤️"
         maxWidth="max-w-5xl"
       />
@@ -80,12 +80,13 @@ export default function SupportPage() {
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-sm text-gray-700 leading-relaxed">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-amber-600 text-lg">ℹ</span>
-              <p className="font-bold text-gray-800">세액공제 안내</p>
+              <p className="font-bold text-gray-800">기부금공제 안내</p>
             </div>
-            <p>
-              아름다운생명사랑은 공익법인(구 지정기부금단체)으로 지정되어 있습니다.<br />
-              <strong>개인 기부자</strong>: 기부금의 15%(1,000만 원 초과분 30%) 세액공제<br />
-              <strong>법인 기부자</strong>: 법인 소득의 10% 한도 내 손금 산입
+            <p>아름다운생명사랑은 일반기부금단체로 지정되어 있는 공익법인입니다.</p>
+            <p className="mt-3">
+              연간 후원금 1천만원 이하는 15%, 초과분은 30% 세액공제율이 적용됩니다.<br />
+              공제한도는 개인(개인사업자 포함) 소득금액의 30%입니다.<br />
+              기부금 이월 공제 기간 : 10년
             </p>
           </div>
         </div>

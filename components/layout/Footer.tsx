@@ -40,7 +40,7 @@ export function Footer() {
               height={88}
               className="h-10 w-auto mb-4 rounded bg-white px-2 py-1"
             />
-            <p className="text-sm text-white/90 mb-2">대표: 김영진</p>
+            <p className="text-sm text-white/90 mb-2">대표이사: 김영진</p>
             <p className="text-sm text-white/80 mb-2">
               서울시 강북구 인수봉로55가길 16-15 하늘평화센터 202호 우) 01024
             </p>

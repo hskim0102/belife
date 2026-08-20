@@ -16,7 +16,7 @@ export function getCategoryLabel(category: string): string {
     photo: '사진게시판',
     webzine: '웹진',
     video: '동영상',
-    intro: '아름다운생명사랑소개',
+    intro: '아름다운생명사랑 소개',
     press: '보도자료',
     award: '표창',
     calendar: '생명사랑 달력보기',

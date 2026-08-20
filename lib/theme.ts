@@ -4,7 +4,7 @@
  * site_settings에 저장되고, 루트 레이아웃이 해당 팔레트로 globals.css의 CSS 변수를 덮어쓴다.
  */
 
-export const THEME_KEYS = ['green', 'pink', 'blue', 'amber', 'violet'] as const
+export const THEME_KEYS = ['green', 'lime', 'pink', 'blue', 'amber', 'violet'] as const
 export type ThemeKey = (typeof THEME_KEYS)[number]
 
 export const DEFAULT_THEME: ThemeKey = 'green'
@@ -59,6 +59,21 @@ export const THEMES: Record<ThemeKey, ThemeDefinition> = {
       primaryAccent: '#c2ecd6',
       primaryMuted: '#c3e8d4',
       navyFooter: '#3b5f4d',
+    },
+  },
+  lime: {
+    key: 'lime',
+    label: '연두',
+    description: '녹색보다 밝고 산뜻한 연두빛',
+    palette: {
+      primary: '#69983a',
+      primaryDark: '#577f2f',
+      primaryDarker: '#456926',
+      primaryLight: '#f8fcf5',
+      primaryLighter: '#eaf4e1',
+      primaryAccent: '#d4ebbc',
+      primaryMuted: '#d6e9c3',
+      navyFooter: '#4c5f3f',
     },
   },
   pink: {

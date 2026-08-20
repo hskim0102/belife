@@ -134,7 +134,7 @@ function CategoryRow({ category }: { category: NewsCategoryItem }) {
             inUse ? 'bg-primary-light text-primary-dark' : 'bg-gray-100 text-gray-400'
           }`}
         >
-          소식 {category.postCount}개
+          활동소식 {category.postCount}개
         </span>
 
         <form
@@ -147,7 +147,7 @@ function CategoryRow({ category }: { category: NewsCategoryItem }) {
           <button
             type="submit"
             disabled={deletePending || inUse}
-            title={inUse ? '이 구분이 붙은 소식이 있어 삭제할 수 없습니다' : '삭제'}
+            title={inUse ? '이 구분이 붙은 활동소식이 있어 삭제할 수 없습니다' : '삭제'}
             className="px-4 py-2.5 rounded-lg text-red-600 font-semibold hover:bg-red-50 transition-colors disabled:text-gray-300 disabled:hover:bg-transparent disabled:cursor-not-allowed"
           >
             삭제

@@ -5,7 +5,7 @@ import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
 
-export const metadata: Metadata = { title: '소식' }
+export const metadata: Metadata = { title: '활동소식' }
 export const revalidate = 60
 
 const PAGE_SIZE = 12
@@ -137,7 +137,7 @@ export default async function NewsPage({
             ))}
             {posts.length === 0 && (
               <div className="col-span-full text-center py-20">
-                <p className="text-gray-400 text-lg mb-2">해당 조건의 소식이 없습니다.</p>
+                <p className="text-gray-400 text-lg mb-2">해당 조건의 활동소식이 없습니다.</p>
                 <p className="text-gray-300 text-sm">다른 분류를 선택해 보세요.</p>
               </div>
             )}

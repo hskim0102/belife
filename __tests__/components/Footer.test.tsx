@@ -19,7 +19,7 @@ describe('Footer', () => {
 
   it('대표자명을 렌더링한다', () => {
     render(<Footer />)
-    expect(screen.getByText(/대표: 김영진/)).toBeInTheDocument()
+    expect(screen.getByText(/대표이사: 김영진/)).toBeInTheDocument()
   })
 
   it('주소를 렌더링한다', () => {

@@ -9,7 +9,7 @@ const NAV_GROUPS = [
   {
     label: '콘텐츠',
     items: [
-      { href: '/admin/news', label: '소식' },
+      { href: '/admin/news', label: '활동소식' },
       { href: '/admin/posts', label: '게시판 글' },
     ],
   },
@@ -20,6 +20,7 @@ const NAV_GROUPS = [
       { href: '/admin/pages', label: '메뉴 페이지' },
       { href: '/admin/members', label: '함께하는 사람들' },
       { href: '/admin/milestones', label: '발자취' },
+      { href: '/admin/location', label: '오시는 길' },
     ],
   },
   {
