@@ -21,6 +21,8 @@ export function getCategoryLabel(category: string): string {
     award: '표창',
     calendar: '생명사랑 달력보기',
     report: '연례보고',
+    office: '사무국',
+    archive: '자료실',
   }
   return map[category] ?? category
 }

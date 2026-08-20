@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPostsPage } from '@/lib/repositories/posts'
+import { getPostsPage, getBoardTagCounts } from '@/lib/repositories/posts'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
 import { extractYouTubeId, youTubeThumbnailUrl } from '@/lib/youtube'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
+import { Pagination } from '@/components/ui/Pagination'
 import { CommentCount } from '@/components/board/CommentCount'
+import { BoardNav } from '@/components/board/BoardNav'
 
 export const revalidate = 60
 
@@ -22,7 +24,8 @@ const gradients = [
 ]
 
 export async function generateStaticParams() {
-  return BOARD_CATEGORIES.map(c => ({ category: c.key }))
+  // 사무국(office)은 로그인 확인이 필요해 app/(site)/board/office 전용 라우트가 담당한다.
+  return BOARD_CATEGORIES.filter(c => c.key !== 'office').map(c => ({ category: c.key }))
 }
 
 export async function generateMetadata({
@@ -35,30 +38,12 @@ export async function generateMetadata({
   return { title: cat ? cat.label : '게시판' }
 }
 
-/** 현재 페이지 주변 + 처음/끝을 포함한 페이지 토큰. */
-function pageWindow(current: number, total: number): (number | '…')[] {
-  const span = 2
-  const pages = new Set<number>([1, total])
-  for (let p = current - span; p <= current + span; p++) {
-    if (p >= 1 && p <= total) pages.add(p)
-  }
-  const sorted = [...pages].sort((a, b) => a - b)
-  const out: (number | '…')[] = []
-  let prev = 0
-  for (const p of sorted) {
-    if (p - prev > 1) out.push('…')
-    out.push(p)
-    prev = p
-  }
-  return out
-}
-
 export default async function BoardCategoryPage({
   params,
   searchParams,
 }: {
   params: Promise<{ category: string }>
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; tag?: string }>
 }) {
   const { category } = await params
   if (!isBoardCategory(category)) notFound()
@@ -67,15 +52,29 @@ export default async function BoardCategoryPage({
   const sp = await searchParams
   const page = Math.max(1, Number(sp.page) || 1)
 
+  // 분류(태그)가 붙은 게시판(자료실 등)은 태그 필터를 함께 보여준다.
+  const tagCounts = await getBoardTagCounts(category)
+  const tag = sp.tag && tagCounts.some(t => t.tag === sp.tag) ? sp.tag : undefined
+
   const { posts, total, page: curPage, totalPages } = await getPostsPage({
     category,
+    tag,
     page,
     pageSize: PAGE_SIZE,
     // 동영상 목록은 본문의 유튜브 링크로 썸네일을 파생하기 위해 본문까지 조회한다.
     includeBody: category === 'video',
   })
 
-  const buildHref = (p: number) => (p > 1 ? `/board/${category}?page=${p}` : `/board/${category}`)
+  const hrefWith = (next: { tag?: string; page?: number }) => {
+    const t = next.tag !== undefined ? next.tag : tag
+    const p = next.page ?? curPage
+    const qs = new URLSearchParams()
+    if (t) qs.set('tag', t)
+    if (p > 1) qs.set('page', String(p))
+    const s = qs.toString()
+    return s ? `/board/${category}?${s}` : `/board/${category}`
+  }
+  const buildHref = (p: number) => hrefWith({ page: p })
 
   return (
     <>
@@ -84,25 +83,34 @@ export default async function BoardCategoryPage({
       <div className="py-14 px-6">
         <div className="max-w-5xl mx-auto">
           {/* 게시판 내비게이션(형제 카테고리 이동) */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            <Link
-              href="/board"
-              className="px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              게시판 홈
-            </Link>
-            {BOARD_CATEGORIES.map(c => (
+          <div className="mb-8">
+            <BoardNav current={category} />
+          </div>
+
+          {/* 분류 필터 (자료실처럼 분류가 있는 게시판에만 표시) */}
+          {tagCounts.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-8 pb-6 border-b border-gray-100">
               <Link
-                key={c.key}
-                href={`/board/${c.key}`}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                  c.key === category ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                href={hrefWith({ tag: '', page: 1 })}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  !tag ? 'bg-primary-dark text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                 }`}
               >
-                {c.label}
+                전체 분류
               </Link>
-            ))}
-          </div>
+              {tagCounts.map(({ tag: tname, count }) => (
+                <Link
+                  key={tname}
+                  href={hrefWith({ tag: tname, page: 1 })}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    tag === tname ? 'bg-primary-dark text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  {tname} <span className="opacity-60">{count}</span>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {posts.length === 0 ? (
             <div className="text-center py-20">
@@ -168,46 +176,7 @@ export default async function BoardCategoryPage({
             </div>
           )}
 
-          {/* 페이지네이션 */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-1 mt-12">
-              {curPage > 1 && (
-                <Link
-                  href={buildHref(curPage - 1)}
-                  className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-                  aria-label="이전 페이지"
-                >
-                  ←
-                </Link>
-              )}
-              {pageWindow(curPage, totalPages).map((p, idx) =>
-                p === '…' ? (
-                  <span key={`gap-${idx}`} className="w-10 h-10 flex items-center justify-center text-gray-300">
-                    …
-                  </span>
-                ) : (
-                  <Link
-                    key={p}
-                    href={buildHref(p)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                      p === curPage ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {p}
-                  </Link>
-                ),
-              )}
-              {curPage < totalPages && (
-                <Link
-                  href={buildHref(curPage + 1)}
-                  className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-                  aria-label="다음 페이지"
-                >
-                  →
-                </Link>
-              )}
-            </div>
-          )}
+          <Pagination page={curPage} totalPages={totalPages} hrefFor={buildHref} />
 
           <p className="text-center text-xs text-gray-400 mt-6">
             총 {total}개 · {curPage}/{totalPages} 페이지

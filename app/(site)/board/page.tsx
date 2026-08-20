@@ -1,14 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getCategoryCounts } from '@/lib/repositories/posts'
-import { BOARD_CATEGORIES, BOARD_CATEGORY_KEYS } from '@/lib/boardCategories'
+import { BOARD_CATEGORIES } from '@/lib/boardCategories'
 import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '게시판' }
 export const revalidate = 60
 
 export default async function BoardLandingPage() {
-  const counts = await getCategoryCounts(BOARD_CATEGORY_KEYS)
+  // 로그인이 필요한 게시판(사무국)의 글 수는 조회하지 않는다.
+  const counts = await getCategoryCounts(
+    BOARD_CATEGORIES.filter(c => !c.requiresLogin).map(c => c.key),
+  )
 
   const Card = ({ cat }: { cat: (typeof BOARD_CATEGORIES)[number] }) => (
     <Link
@@ -20,7 +23,10 @@ export default async function BoardLandingPage() {
         <span className="block font-bold text-gray-900 group-hover:text-primary-darker transition-colors">
           {cat.label}
         </span>
-        <span className="block text-sm text-gray-400 mt-0.5">{counts[cat.key] ?? 0}개의 게시물</span>
+        <span className="block text-sm text-gray-400 mt-0.5">
+          {/* 로그인이 필요한 게시판은 글 수도 감춘다(내용을 짐작할 수 있으므로) */}
+          {cat.requiresLogin ? '🔒 로그인 후 열람' : `${counts[cat.key] ?? 0}개의 게시물`}
+        </span>
       </span>
       <span className="text-gray-300 group-hover:text-primary-darker transition-colors" aria-hidden="true">
         →

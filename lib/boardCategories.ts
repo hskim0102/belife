@@ -17,6 +17,11 @@ export interface BoardCategoryDef {
   group?: string
   /** 랜딩/빈 목록용 장식 이모지 */
   emoji: string
+  /**
+   * 로그인해야 목록·본문을 볼 수 있는 게시판(사무국).
+   * 메뉴에는 그대로 나오지만 글 수처럼 내용을 짐작할 수 있는 정보는 감춘다.
+   */
+  requiresLogin?: boolean
   /** 카드 색상 칩 클래스 */
   chip: string
 }
@@ -31,6 +36,8 @@ export const BOARD_CATEGORIES: BoardCategoryDef[] = [
   { key: 'press',    label: '보도자료',            layout: 'card', group: '홍보자료', emoji: '🗞️', chip: 'bg-teal-100 text-teal-700' },
   { key: 'award',    label: '표창',                layout: 'card', group: '홍보자료', emoji: '🏆', chip: 'bg-orange-100 text-orange-700' },
   { key: 'calendar', label: '생명사랑 달력보기',    layout: 'card', group: '홍보자료', emoji: '📅', chip: 'bg-emerald-100 text-emerald-700' },
+  { key: 'office',   label: '사무국',              layout: 'list', emoji: '🗂️', chip: 'bg-slate-100 text-slate-700', requiresLogin: true },
+  { key: 'archive',  label: '자료실',              layout: 'list', emoji: '📚', chip: 'bg-sky-100 text-sky-700' },
 ]
 
 export const BOARD_CATEGORY_KEYS = BOARD_CATEGORIES.map(c => c.key)

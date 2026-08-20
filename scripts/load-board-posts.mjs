@@ -2,10 +2,10 @@
 //   기본: migrations/seed_<cat>_posts.blob.sql (Blob URL 치환본)
 //   --raw 옵션 시: migrations/seed_<cat>_posts.sql (원본 belife URL)
 //
-// 적재 전 005_board_categories.sql(category 제약 확장)을 먼저 적용한다(idempotent).
+// 적재 전 019_office_archive_categories.sql(category 제약 확장 누적본)을 먼저 적용한다(idempotent).
 //
 // 사용법:
-//   node scripts/load-board-posts.mjs                  # 005 + 8개 게시판 전체 적재
+//   node scripts/load-board-posts.mjs                  # 제약 확장 + 게시판 전체 적재
 //   node scripts/load-board-posts.mjs notice award     # 특정 카테고리만
 //   node scripts/load-board-posts.mjs --raw            # Blob 미사용, 원본 URL 적재
 import { readFileSync, existsSync } from 'node:fs'
@@ -32,7 +32,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1)
 }
 
-const ALL = ['notice', 'photo', 'webzine', 'video', 'intro', 'press', 'award', 'calendar']
+const ALL = ['notice', 'photo', 'webzine', 'video', 'intro', 'press', 'award', 'calendar', 'archive', 'office']
 const args = process.argv.slice(2)
 const useRaw = args.includes('--raw')
 const cats = args.filter((a) => !a.startsWith('--'))
@@ -65,9 +65,12 @@ try {
     process.exit(1)
   }
 
-  // 1) 카테고리 제약 확장(005) — idempotent
-  console.log('005_board_categories.sql 적용(제약 확장)…')
-  await client.query(readFileSync(join(ROOT, 'migrations', '005_board_categories.sql'), 'utf-8'))
+  // 1) 카테고리 제약 확장 — 가장 최신 제약 마이그레이션(누적본)을 적용한다. idempotent.
+  //    005 는 옛 8개 카테고리만 허용하므로, report/office/archive 가 들어온 뒤로는 019 를 쓴다.
+  console.log('019_office_archive_categories.sql 적용(제약 확장)…')
+  await client.query(
+    readFileSync(join(ROOT, 'migrations', '019_office_archive_categories.sql'), 'utf-8'),
+  )
 
   // 2) 게시판별 seed 적재
   let grand = 0

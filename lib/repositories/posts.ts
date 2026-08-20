@@ -154,33 +154,51 @@ function isMissingTable(err: unknown): boolean {
   return typeof err === 'object' && err !== null && (err as { code?: string }).code === '42P01'
 }
 
-const ACTIVITY_TAG_COUNTS = `
+const TAG_COUNTS = `
   SELECT unnest(tags) AS tag, count(*)::int AS count
     FROM posts
-   WHERE category = 'activity' AND cardinality(tags) > 0
+   WHERE category = $1 AND cardinality(tags) > 0
    GROUP BY tag`
 
 /**
- * 활동소식 분류 태그 목록과 글 수(탭 구성용).
- * 구분 관리(news_categories)에서 정한 정렬 순서를 따르고,
+ * 한 게시판(카테고리)의 분류 태그 목록과 글 수(필터 탭 구성용).
+ *
+ * 활동소식은 구분 관리(news_categories)에서 정한 정렬 순서를 따르고,
  * 구분에 등록되지 않은 태그(과거 데이터)는 뒤에 글 많은 순으로 붙는다.
+ * 그 외 게시판(자료실 등)의 분류는 별도 관리 화면이 없으므로 글 많은 순이다.
  */
-export async function getActivityTagCounts(): Promise<{ tag: string; count: number }[]> {
+export async function getBoardTagCounts(
+  category: Post['category'],
+): Promise<{ tag: string; count: number }[]> {
+  if (category !== 'activity') {
+    const rows = await query<{ tag: string; count: number }>(
+      `${TAG_COUNTS} ORDER BY count DESC, tag`,
+      [category],
+    )
+    return rows.map(r => ({ tag: r.tag, count: r.count }))
+  }
   try {
     const rows = await query<{ tag: string; count: number }>(
       `SELECT t.tag, t.count
-         FROM (${ACTIVITY_TAG_COUNTS}) t
+         FROM (${TAG_COUNTS}) t
          LEFT JOIN news_categories c ON c.label = t.tag
         ORDER BY (c.id IS NULL), c.sort_order, c.id, t.count DESC, t.tag`,
+      [category],
     )
     return rows.map(r => ({ tag: r.tag, count: r.count }))
   } catch (err) {
     if (!isMissingTable(err)) throw err
     const rows = await query<{ tag: string; count: number }>(
-      `${ACTIVITY_TAG_COUNTS} ORDER BY count DESC, tag`,
+      `${TAG_COUNTS} ORDER BY count DESC, tag`,
+      [category],
     )
     return rows.map(r => ({ tag: r.tag, count: r.count }))
   }
+}
+
+/** 활동소식 분류 태그 목록과 글 수. */
+export function getActivityTagCounts(): Promise<{ tag: string; count: number }[]> {
+  return getBoardTagCounts('activity')
 }
 
 // ── 관리자 CRUD (게시판 글 작성/수정/삭제) ──────────────────────────────────

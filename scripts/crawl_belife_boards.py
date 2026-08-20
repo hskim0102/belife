@@ -30,23 +30,50 @@ import os
 import re
 import sys
 import time
+import urllib.parse
 import urllib.request
+import http.cookiejar
 
 BASE = "http://www.belife.org/belife/"
 LIST_URL = BASE + "bbs/board.php?bo_table={bo}&page={page}"
 VIEW_URL = BASE + "bbs/board.php?bo_table={bo}&wr_id={wr_id}"
+LOGIN_URL = BASE + "bbs/login_check.php"
 UA = "Mozilla/5.0 (compatible; belife-archiver/1.0)"
 TIMEOUT = 30
 DELAY = 0.4  # 서버 부하 방지용 요청 간 지연(초)
 
+# 세션 쿠키 유지용 오프너. 로그인 전용 게시판(예: 사무국)과
+# 첨부파일 download.php(뷰 페이지 방문 쿠키 필요)에 모두 쓰인다.
+COOKIES = http.cookiejar.CookieJar()
+OPENER = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(COOKIES))
+OPENER.addheaders = [("User-Agent", UA)]
 
-def fetch(url, retries=3):
+
+def login(mb_id, mb_password):
+    """그누보드 로그인. 자격 증명은 환경변수로만 받는다(스크립트에 적지 말 것).
+
+    성공 여부는 쿠키에 회원 세션이 잡혔는지로 판단하지 않고,
+    호출 측에서 목록이 실제로 열리는지로 확인한다.
+    """
+    data = urllib.parse.urlencode(
+        {"url": BASE + "index.php", "mb_id": mb_id, "mb_password": mb_password}
+    ).encode()
+    req = urllib.request.Request(LOGIN_URL, data=data, headers={"Referer": BASE + "bbs/login.php"})
+    with OPENER.open(req, timeout=TIMEOUT) as r:
+        body = r.read().decode("utf-8", errors="replace")
+    if "비밀번호" in body and "alert" in body:
+        raise RuntimeError("로그인 실패: 아이디/비밀번호를 확인해 주세요.")
+    return body
+
+
+def fetch(url, retries=3, referer=None):
     """URL을 가져와 UTF-8 문자열로 반환. 게시판 페이지는 UTF-8."""
     last = None
     for i in range(retries):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            headers = {"Referer": referer} if referer else {}
+            req = urllib.request.Request(url, headers=headers)
+            with OPENER.open(req, timeout=TIMEOUT) as r:
                 raw = r.read()
             return raw.decode("utf-8", errors="replace")
         except Exception as e:  # noqa: BLE001
@@ -120,7 +147,47 @@ def collect_attachments(htmlstr, bo):
     return out
 
 
-def parse_view(htmlstr, bo):
+FILE_DOWNLOAD_RE = re.compile(
+    r"file_download\(\s*'\.?/?(download\.php\?[^']+)'\s*,\s*'([^']*)'\s*\)", re.I
+)
+FILE_LABEL_RE = re.compile(r">([^<>]{1,120}?\((?:[\d.]+[KMG]?)\))<")
+
+
+def collect_files(htmlstr):
+    """그누보드 첨부파일(download.php) 링크를 [{url, name, label}] 로 수집.
+
+    자료실처럼 본문이 아니라 첨부파일이 핵심인 게시판을 위해 필요하다.
+    (다운로드는 뷰 페이지 방문으로 받은 세션 쿠키가 있어야 성공한다)
+    """
+    out = []
+    seen = set()
+    for m in FILE_DOWNLOAD_RE.finditer(htmlstr):
+        path, name = m.group(1), html.unescape(m.group(2)).strip()
+        url = BASE + "bbs/" + html.unescape(path)
+        if url in seen:
+            continue
+        seen.add(url)
+        # 링크 뒤에 붙는 "파일명 (32.0K)" 표기가 있으면 그대로 라벨로 쓴다.
+        tail = htmlstr[m.end(): m.end() + 300]
+        ml = FILE_LABEL_RE.search(tail)
+        out.append({"url": url, "name": name, "label": (ml.group(1).strip() if ml else name)})
+    return out
+
+
+def files_html(files):
+    """첨부파일 목록을 본문 상단에 붙일 HTML 로 변환."""
+    if not files:
+        return ""
+    items = "".join(
+        '<li><a href="{url}">{label}</a></li>'.format(
+            url=html.escape(f["url"], quote=True), label=html.escape(f["label"])
+        )
+        for f in files
+    )
+    return f"<p><strong>첨부파일</strong></p><ul>{items}</ul>"
+
+
+def parse_view(htmlstr, bo, want_files=False):
     """보기 HTML → {title, published_at, views, body_html, thumbnail, excerpt}."""
     title = ""
     mt = VIEW_TITLE_RE.search(htmlstr)
@@ -152,6 +219,11 @@ def parse_view(htmlstr, bo):
             for u in attachments
         )
         body_html = imgs_html + body_html
+
+    # 첨부파일(문서 등): 자료실처럼 첨부가 본문인 게시판에서만 켠다.
+    files = collect_files(htmlstr) if want_files else []
+    if files:
+        body_html = files_html(files) + body_html
 
     mi = IMG_SRC_RE.search(body_html)
     thumbnail = mi.group(1) if mi else (attachments[0] if attachments else "")
@@ -224,7 +296,35 @@ def main():
         default="",
         help="출력 SQL 경로(기본: migrations/seed_<category>_posts.sql)",
     )
+    ap.add_argument(
+        "--attachments",
+        action="store_true",
+        help="첨부파일(download.php) 링크를 본문 상단에 목록으로 붙인다(자료실·사무국용)",
+    )
+    ap.add_argument(
+        "--login",
+        action="store_true",
+        help=(
+            "로그인이 필요한 게시판(예: 사무국 cezz)일 때 사용. "
+            "자격 증명은 환경변수 BELIFE_ID / BELIFE_PW 에서만 읽는다."
+        ),
+    )
     args = ap.parse_args()
+
+    if args.login:
+        mb_id = os.environ.get("BELIFE_ID", "")
+        mb_pw = os.environ.get("BELIFE_PW", "")
+        if not mb_id or not mb_pw:
+            print(
+                "로그인하려면 환경변수 BELIFE_ID / BELIFE_PW 를 설정해 주세요.\n"
+                "예) BELIFE_ID='아이디' BELIFE_PW='비밀번호' python3 scripts/crawl_belife_boards.py "
+                "--bo-table cezz --category office --attachments --login",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        print("[로그인] 시도 중...", file=sys.stderr)
+        login(mb_id, mb_pw)
+        print("[로그인] 세션 확보", file=sys.stderr)
 
     bo = args.bo_table
     category = args.category
@@ -269,7 +369,7 @@ def main():
         vurl = VIEW_URL.format(bo=bo, wr_id=wr_id)
         try:
             vhtml = fetch(vurl)
-            v = parse_view(vhtml, bo)
+            v = parse_view(vhtml, bo, want_files=args.attachments)
         except Exception as e:  # noqa: BLE001
             print(f"  ! wr_id={wr_id} 본문 실패: {e}", file=sys.stderr)
             v = {
