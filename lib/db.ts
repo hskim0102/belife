@@ -35,9 +35,21 @@ function createPool(): Pool | null {
     }
   }
 
+  // 서버리스(Vercel)에서는 요청을 받는 인스턴스마다 이 풀이 따로 생긴다.
+  // 인스턴스가 여러 개 뜨면 (인스턴스 수 × max) 만큼 커넥션을 잡게 되는데,
+  // Prisma Postgres 처럼 커넥션 한도가 빡빡한 DB 는 금세 한도를 넘겨
+  // 'too many connections' 로 요청이 통째로 500 이 된다.
+  // 그래서 인스턴스당 커넥션은 최소로, 유휴 커넥션은 빨리 반납하도록 잡는다.
+  const isServerless = Boolean(process.env.VERCEL)
   return new Pool({
     connectionString,
-    max: PG_POOL_MAX ? Number(PG_POOL_MAX) : 10,
+    max: PG_POOL_MAX ? Number(PG_POOL_MAX) : isServerless ? 1 : 3,
+    // 유휴 커넥션을 오래 붙들지 않는다(기본 10초 → 3초).
+    idleTimeoutMillis: 3_000,
+    // 커넥션을 못 얻을 때 무한정 기다리지 않고 명확히 실패시킨다.
+    connectionTimeoutMillis: 10_000,
+    // 유휴 상태에서 프로세스가 정리될 수 있게 한다(서버리스에서 커넥션 반납에 유리).
+    allowExitOnIdle: true,
     ssl,
   })
 }
