@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { getThemeSettings } from '@/lib/repositories/theme'
-import { DEFAULT_BRIGHTNESS, DEFAULT_THEME, themeCss, type ThemeKey } from '@/lib/theme'
+import { DEFAULT_BRIGHTNESS, DEFAULT_THEME, themeCss, type ThemeColor } from '@/lib/theme'
 
 export const metadata: Metadata = {
   title: { default: '아름다운생명사랑', template: '%s | 아름다운생명사랑' },
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // 관리자가 설정한 테마 색상·밝기. 조회 실패가 사이트 전체를 막지 않도록 기본값으로 폴백.
-  let theme: ThemeKey = DEFAULT_THEME
+  let theme: ThemeColor = DEFAULT_THEME
   let brightness = DEFAULT_BRIGHTNESS
   try {
     const settings = await getThemeSettings()

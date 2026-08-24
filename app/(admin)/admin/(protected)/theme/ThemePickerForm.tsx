@@ -6,12 +6,15 @@ import {
   BRIGHTNESS_STEP,
   MAX_BRIGHTNESS,
   MIN_BRIGHTNESS,
+  NEUTRAL_BRIGHTNESS,
   THEME_KEYS,
   THEMES,
+  isThemeKey,
   paletteToCssVars,
   resolvePalette,
-  type ThemeKey,
+  type ThemeColor,
 } from '@/lib/theme'
+import { ColorPicker } from '@/components/admin/ColorPicker'
 import { cn } from '@/lib/cn'
 
 /** 테마 색상 선택 컴포넌트: 색상 선택 + 밝기 슬라이더 → 미리보기 → 저장 */
@@ -19,11 +22,11 @@ export function ThemePickerForm({
   current,
   currentBrightness,
 }: {
-  current: ThemeKey
+  current: ThemeColor
   currentBrightness: number
 }) {
   const [state, formAction, pending] = useActionState<ThemeFormState, FormData>(updateThemeAction, {})
-  const [selected, setSelected] = useState<ThemeKey>(current)
+  const [selected, setSelected] = useState<ThemeColor>(current)
   const [brightness, setBrightness] = useState<number>(currentBrightness)
   const previewPalette = resolvePalette(selected, brightness)
   const unchanged = selected === current && brightness === currentBrightness
@@ -31,11 +34,22 @@ export function ThemePickerForm({
   const strong = resolvePalette(selected, MIN_BRIGHTNESS)
   const light = resolvePalette(selected, MAX_BRIGHTNESS)
 
+  // 직접 고른 색이 아니면, 선택기는 지금 고른 프리셋의 대표색에서 출발한다.
+  const usingCustom = !isThemeKey(selected)
+  const pickerValue = usingCustom
+    ? selected
+    : resolvePalette(selected, NEUTRAL_BRIGHTNESS).primary
+  // 흰 글씨가 읽히도록 명도를 좁혀 적용하므로, 고른 색과 실제 적용색이 다를 수 있다.
+  const appliedPrimary = resolvePalette(selected, NEUTRAL_BRIGHTNESS).primary
+
   return (
     <form action={formAction} className="space-y-8">
+      {/* 프리셋·직접 선택 어느 쪽이든 실제로 저장되는 값은 이 하나다. */}
+      <input type="hidden" name="theme" value={selected} />
+
       {/* 색상 선택 스와치 */}
       <fieldset>
-        <legend className="block text-sm font-semibold text-gray-700 mb-3">색상 선택</legend>
+        <legend className="block text-sm font-semibold text-gray-700 mb-3">색상 선택 (프리셋)</legend>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {THEME_KEYS.map(key => {
             const theme = THEMES[key]
@@ -53,7 +67,7 @@ export function ThemePickerForm({
               >
                 <input
                   type="radio"
-                  name="theme"
+                  name="theme-preset"
                   value={key}
                   checked={isSelected}
                   onChange={() => setSelected(key)}
@@ -84,6 +98,31 @@ export function ThemePickerForm({
               </label>
             )
           })}
+        </div>
+      </fieldset>
+
+      {/* 직접 색 고르기 */}
+      <fieldset>
+        <div className="flex items-center gap-2 mb-3">
+          <legend className="text-sm font-semibold text-gray-700">직접 선택</legend>
+          {usingCustom && (
+            <span className="text-[10px] font-bold text-white bg-gray-900 px-1.5 py-0.5 rounded-full">
+              사용 중
+            </span>
+          )}
+        </div>
+        <ColorPicker value={pickerValue} onChange={setSelected} />
+        <div className="max-w-md mt-3 flex items-start gap-2 text-xs text-gray-500">
+          <span
+            className="w-5 h-5 shrink-0 rounded-full border border-black/10"
+            style={{ backgroundColor: appliedPrimary }}
+            aria-hidden="true"
+          />
+          <p className="leading-relaxed">
+            실제 적용되는 대표색은 <strong className="text-gray-700">{appliedPrimary}</strong> 입니다.
+            버튼·푸터에는 흰 글씨가 얹히므로, 너무 밝거나 어두운 색은 글씨가 읽히는 범위로
+            명도를 좁혀 적용합니다. 나머지 색(연한 배경·강조·푸터)은 이 색에서 자동으로 만듭니다.
+          </p>
         </div>
       </fieldset>
 

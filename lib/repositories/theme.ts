@@ -1,9 +1,17 @@
 import 'server-only'
 import { query, queryOne } from '@/lib/db'
-import { clampBrightness, DEFAULT_BRIGHTNESS, DEFAULT_THEME, isThemeKey, type ThemeKey } from '@/lib/theme'
+import {
+  clampBrightness,
+  DEFAULT_BRIGHTNESS,
+  DEFAULT_THEME,
+  isThemeColor,
+  normalizeHex,
+  type ThemeColor,
+} from '@/lib/theme'
 
 export interface ThemeSettings {
-  color: ThemeKey
+  /** 프리셋 키('green') 또는 직접 고른 hex('#ff4885') */
+  color: ThemeColor
   brightness: number
 }
 
@@ -29,21 +37,23 @@ export async function getThemeSettings(): Promise<ThemeSettings> {
   return { color, brightness }
 }
 
-/** 현재 사이트 테마 색상 키. 조회 실패 시 기본 테마로 폴백. */
-export async function getThemeColor(): Promise<ThemeKey> {
+/** 현재 사이트 테마 색상(프리셋 키 또는 hex). 조회 실패 시 기본 테마로 폴백. */
+export async function getThemeColor(): Promise<ThemeColor> {
   try {
     const row = await queryOne<{ theme_color: string | null }>(
       `SELECT theme_color FROM site_settings WHERE id = 1 LIMIT 1`,
     )
     const value = row?.theme_color
-    return value && isThemeKey(value) ? value : DEFAULT_THEME
+    if (!value || !isThemeColor(value)) return DEFAULT_THEME
+    // hex 는 저장 형태가 섞이지 않도록 '#rrggbb' 소문자로 맞춰 돌려준다.
+    return normalizeHex(value) ?? value
   } catch (err) {
     if (isMissingRelation(err)) return DEFAULT_THEME
     throw err
   }
 }
 
-export async function updateThemeSettings(color: ThemeKey, brightness: number): Promise<void> {
+export async function updateThemeSettings(color: ThemeColor, brightness: number): Promise<void> {
   await query(
     `INSERT INTO site_settings (id, theme_color, theme_brightness) VALUES (1, $1, $2)
        ON CONFLICT (id) DO UPDATE SET theme_color = EXCLUDED.theme_color, theme_brightness = EXCLUDED.theme_brightness`,

@@ -142,6 +142,31 @@ export function isThemeKey(value: string): value is ThemeKey {
   return (THEME_KEYS as readonly string[]).includes(value)
 }
 
+/**
+ * 저장·주입에 쓰이는 테마 색상.
+ * 프리셋 키('green')이거나, 관리자가 직접 고른 hex('#ff4885')다.
+ */
+export type ThemeColor = string
+
+const HEX_PATTERN = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i
+
+/** '#ff4885' / 'FF4885' / '#f48' → '#ff4885'. 형식이 아니면 null. */
+export function normalizeHex(value: string): string | null {
+  const m = value.trim().match(HEX_PATTERN)
+  if (!m) return null
+  const body = m[1].toLowerCase()
+  return `#${body.length === 3 ? body.split('').map(c => c + c).join('') : body}`
+}
+
+export function isHexColor(value: string): boolean {
+  return normalizeHex(value) !== null
+}
+
+/** 프리셋 키이거나 hex 이면 테마 색상으로 쓸 수 있다. */
+export function isThemeColor(value: string): boolean {
+  return isThemeKey(value) || isHexColor(value)
+}
+
 // ── 색상 유틸: 밝기(농도) 조절을 위한 HSL 변환 ─────────────────────────────
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -219,6 +244,53 @@ function adjust(hex: string, satMul: number, lightDelta: number): string {
   return rgbToHex(nr, ng, nb)
 }
 
+function hslToHex(h: number, s: number, l: number): string {
+  const [r, g, b] = hslToRgb(h, clamp(s, 0, 100), clamp(l, 0, 100))
+  return rgbToHex(r, g, b)
+}
+
+// ── 직접 고른 색에서 팔레트 만들기 ────────────────────────────────────────
+
+/**
+ * primary 로 쓸 수 있는 명도 구간.
+ * primary·primaryDark·primaryDarker 위에는 흰 글씨가 얹히므로(버튼·푸터),
+ * 고른 색이 너무 밝으면 글씨가 묻힌다. 색상(hue)은 그대로 두고 명도만 좁힌다.
+ */
+const PRIMARY_MIN_LIGHTNESS = 32
+const PRIMARY_MAX_LIGHTNESS = 62
+const MAX_SATURATION = 95
+
+/**
+ * hex 한 색에서 8개 역할 팔레트를 만든다.
+ * 계수는 기본 테마(파스텔 그린)의 역할 간 관계를 그대로 옮긴 것이라,
+ * 그린의 primary 를 넣으면 기존 파스텔 그린 팔레트가 거의 그대로 재현된다.
+ */
+export function derivePalette(hex: string): ThemePalette {
+  const normalized = normalizeHex(hex) ?? THEMES[DEFAULT_THEME].palette.primary
+  const [r, g, b] = hexToRgb(normalized)
+  const [h, rawS, rawL] = rgbToHsl(r, g, b)
+  const s = Math.min(rawS, MAX_SATURATION)
+  const l = clamp(rawL, PRIMARY_MIN_LIGHTNESS, PRIMARY_MAX_LIGHTNESS)
+
+  return {
+    primary: hslToHex(h, s, l),
+    primaryDark: hslToHex(h, s, l - 8),
+    primaryDarker: hslToHex(h, s, l - 14),
+    primaryLight: hslToHex(h, s * 1.1, 97),
+    primaryLighter: hslToHex(h, s, 91),
+    primaryAccent: hslToHex(h, s * 1.25, 84),
+    primaryMuted: hslToHex(h, s * 1.1, 84),
+    navyFooter: hslToHex(h, s * 0.55, 30),
+  }
+}
+
+/** 프리셋 키면 정해진 팔레트, hex 면 파생 팔레트. 알 수 없으면 기본 테마. */
+function basePalette(color: ThemeColor): ThemePalette {
+  if (isThemeKey(color)) return THEMES[color].palette
+  if (isHexColor(color)) return derivePalette(color)
+  return THEMES[DEFAULT_THEME].palette
+}
+
 /** 가장 진한(밝기 0) 상태의 역할별 변환 계수: [채도 배수, 명도 증감] */
 const STRONG_ADJUST: Record<keyof ThemePalette, [number, number]> = {
   primary: [1.18, -8],
@@ -248,8 +320,11 @@ const LIGHT_ADJUST: Record<keyof ThemePalette, [number, number]> = {
  * 밝기 100(중립)은 원본 파스텔, 0은 가장 진한 색, 150은 기본보다 더 연한 색이며
  * 각 구간을 선형 보간한다.
  */
-export function resolvePalette(key: ThemeKey, brightness: number = DEFAULT_BRIGHTNESS): ThemePalette {
-  const base = THEMES[key].palette
+export function resolvePalette(
+  color: ThemeColor,
+  brightness: number = DEFAULT_BRIGHTNESS,
+): ThemePalette {
+  const base = basePalette(color)
   const b = clampBrightness(brightness)
   if (b === NEUTRAL_BRIGHTNESS) return base
   // 진하게(<100)면 STRONG, 연하게(>100)면 LIGHT 방향으로 t(0~1)만큼 보간
@@ -281,10 +356,54 @@ export function paletteToCssVars(palette: ThemePalette): Record<string, string> 
 }
 
 /** 루트 레이아웃에서 주입할 :root CSS 문자열 */
-export function themeCss(key: ThemeKey, brightness: number = DEFAULT_BRIGHTNESS): string {
-  const vars = paletteToCssVars(resolvePalette(key, brightness))
+export function themeCss(color: ThemeColor, brightness: number = DEFAULT_BRIGHTNESS): string {
+  const vars = paletteToCssVars(resolvePalette(color, brightness))
   const body = Object.entries(vars)
     .map(([name, value]) => `${name}:${value}`)
     .join(';')
   return `:root{${body}}`
+}
+
+// ── 색상 선택기(HSV)용 변환 ───────────────────────────────────────────────
+// 관리자 색상 선택기는 채도·명도 사각형과 색상 슬라이더로 다루므로 HSV 가 편하다.
+// (팔레트 계산은 HSL 로 하고, 화면 조작만 HSV 로 한다)
+
+export interface Hsv {
+  /** 색상 0~360 */
+  h: number
+  /** 채도 0~100 */
+  s: number
+  /** 명도 0~100 */
+  v: number
+}
+
+export function hexToHsv(hex: string): Hsv {
+  const [r, g, b] = hexToRgb(normalizeHex(hex) ?? '#000000').map(v => v / 255)
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const d = max - min
+  let h = 0
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6
+    else if (max === g) h = ((b - r) / d + 2) / 6
+    else h = ((r - g) / d + 4) / 6
+  }
+  return { h: h * 360, s: max === 0 ? 0 : (d / max) * 100, v: max * 100 }
+}
+
+export function hsvToHex(h: number, s: number, v: number): string {
+  const sat = clamp(s, 0, 100) / 100
+  const val = clamp(v, 0, 100) / 100
+  const c = val * sat
+  const hp = (((h % 360) + 360) % 360) / 60
+  const x = c * (1 - Math.abs((hp % 2) - 1))
+  const [r1, g1, b1] =
+    hp < 1 ? [c, x, 0]
+    : hp < 2 ? [x, c, 0]
+    : hp < 3 ? [0, c, x]
+    : hp < 4 ? [0, x, c]
+    : hp < 5 ? [x, 0, c]
+    : [c, 0, x]
+  const m = val - c
+  return rgbToHex((r1 + m) * 255, (g1 + m) * 255, (b1 + m) * 255)
 }
