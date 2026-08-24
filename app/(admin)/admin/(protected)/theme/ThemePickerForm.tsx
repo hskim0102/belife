@@ -17,6 +17,63 @@ import {
 import { ColorPicker } from '@/components/admin/ColorPicker'
 import { cn } from '@/lib/cn'
 
+/** 색상 선택 카드 — 프리셋과 '직접 선택'이 같은 모양을 쓴다. */
+function SwatchCard({
+  value,
+  colors,
+  label,
+  description,
+  selected,
+  inUse,
+  onSelect,
+}: {
+  /** 라디오 값(프리셋 키 또는 'custom') */
+  value: string
+  /** 카드에 겹쳐 보여 줄 색 3개 */
+  colors: [string, string, string]
+  label: string
+  description: string
+  selected: boolean
+  /** 지금 사이트에 적용돼 있는 선택지인지 */
+  inUse: boolean
+  onSelect: () => void
+}) {
+  return (
+    <label
+      className={cn(
+        'relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 cursor-pointer transition-all',
+        selected ? 'border-gray-900 bg-white shadow-md' : 'border-gray-200 bg-white hover:border-gray-400',
+      )}
+    >
+      <input
+        type="radio"
+        name="theme-choice"
+        value={value}
+        checked={selected}
+        onChange={onSelect}
+        className="sr-only"
+      />
+      {/* 팔레트 미리보기 원 3개 (선택한 밝기 반영) */}
+      <span className="flex -space-x-2">
+        {colors.map((color, i) => (
+          <span
+            key={i}
+            className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
+            style={{ backgroundColor: color }}
+          />
+        ))}
+      </span>
+      <span className="text-sm font-bold text-gray-900">{label}</span>
+      <span className="text-xs text-gray-400 text-center leading-snug">{description}</span>
+      {inUse && (
+        <span className="absolute top-2 right-2 text-[10px] font-bold text-white bg-gray-900 px-1.5 py-0.5 rounded-full">
+          사용 중
+        </span>
+      )}
+    </label>
+  )
+}
+
 /** 테마 색상 선택 컴포넌트: 색상 선택 + 밝기 슬라이더 → 미리보기 → 저장 */
 export function ThemePickerForm({
   current,
@@ -34,96 +91,74 @@ export function ThemePickerForm({
   const strong = resolvePalette(selected, MIN_BRIGHTNESS)
   const light = resolvePalette(selected, MAX_BRIGHTNESS)
 
-  // 직접 고른 색이 아니면, 선택기는 지금 고른 프리셋의 대표색에서 출발한다.
+  // '직접 선택' 카드가 들고 있는 색. 프리셋에 갔다 돌아와도 고른 색이 남아 있다.
+  // (처음에는 지금 쓰는 테마의 대표색에서 출발한다)
+  const [customHex, setCustomHex] = useState<string>(() =>
+    isThemeKey(current) ? resolvePalette(current, NEUTRAL_BRIGHTNESS).primary : current,
+  )
   const usingCustom = !isThemeKey(selected)
-  const pickerValue = usingCustom
-    ? selected
-    : resolvePalette(selected, NEUTRAL_BRIGHTNESS).primary
+  const customSwatch = resolvePalette(customHex, brightness)
   // 흰 글씨가 읽히도록 명도를 좁혀 적용하므로, 고른 색과 실제 적용색이 다를 수 있다.
   const appliedPrimary = resolvePalette(selected, NEUTRAL_BRIGHTNESS).primary
+
+  const pickCustom = (hex: string) => {
+    setCustomHex(hex)
+    setSelected(hex)
+  }
 
   return (
     <form action={formAction} className="space-y-8">
       {/* 프리셋·직접 선택 어느 쪽이든 실제로 저장되는 값은 이 하나다. */}
       <input type="hidden" name="theme" value={selected} />
 
-      {/* 색상 선택 스와치 */}
+      {/* 색상 선택 카드 (프리셋 + 직접 선택) */}
       <fieldset>
-        <legend className="block text-sm font-semibold text-gray-700 mb-3">색상 선택 (프리셋)</legend>
+        <legend className="block text-sm font-semibold text-gray-700 mb-3">색상 선택</legend>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {THEME_KEYS.map(key => {
-            const theme = THEMES[key]
             const swatch = resolvePalette(key, brightness)
-            const isSelected = selected === key
             return (
-              <label
+              <SwatchCard
                 key={key}
-                className={cn(
-                  'relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 cursor-pointer transition-all',
-                  isSelected
-                    ? 'border-gray-900 bg-white shadow-md'
-                    : 'border-gray-200 bg-white hover:border-gray-400',
-                )}
-              >
-                <input
-                  type="radio"
-                  name="theme-preset"
-                  value={key}
-                  checked={isSelected}
-                  onChange={() => setSelected(key)}
-                  className="sr-only"
-                />
-                {/* 팔레트 미리보기 원 3개 (선택한 밝기 반영) */}
-                <span className="flex -space-x-2">
-                  <span
-                    className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: swatch.primary }}
-                  />
-                  <span
-                    className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: swatch.primaryAccent }}
-                  />
-                  <span
-                    className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                    style={{ backgroundColor: swatch.primaryLighter }}
-                  />
-                </span>
-                <span className="text-sm font-bold text-gray-900">{theme.label}</span>
-                <span className="text-xs text-gray-400 text-center leading-snug">{theme.description}</span>
-                {current === key && (
-                  <span className="absolute top-2 right-2 text-[10px] font-bold text-white bg-gray-900 px-1.5 py-0.5 rounded-full">
-                    사용 중
-                  </span>
-                )}
-              </label>
+                value={key}
+                colors={[swatch.primary, swatch.primaryAccent, swatch.primaryLighter]}
+                label={THEMES[key].label}
+                description={THEMES[key].description}
+                selected={selected === key}
+                inUse={current === key}
+                onSelect={() => setSelected(key)}
+              />
             )
           })}
-        </div>
-      </fieldset>
-
-      {/* 직접 색 고르기 */}
-      <fieldset>
-        <div className="flex items-center gap-2 mb-3">
-          <legend className="text-sm font-semibold text-gray-700">직접 선택</legend>
-          {usingCustom && (
-            <span className="text-[10px] font-bold text-white bg-gray-900 px-1.5 py-0.5 rounded-full">
-              사용 중
-            </span>
-          )}
-        </div>
-        <ColorPicker value={pickerValue} onChange={setSelected} />
-        <div className="max-w-md mt-3 flex items-start gap-2 text-xs text-gray-500">
-          <span
-            className="w-5 h-5 shrink-0 rounded-full border border-black/10"
-            style={{ backgroundColor: appliedPrimary }}
-            aria-hidden="true"
+          <SwatchCard
+            value="custom"
+            colors={[customSwatch.primary, customSwatch.primaryAccent, customSwatch.primaryLighter]}
+            label="직접 선택"
+            description="원하는 색을 직접 고릅니다"
+            selected={usingCustom}
+            inUse={!isThemeKey(current)}
+            onSelect={() => setSelected(customHex)}
           />
-          <p className="leading-relaxed">
-            실제 적용되는 대표색은 <strong className="text-gray-700">{appliedPrimary}</strong> 입니다.
-            버튼·푸터에는 흰 글씨가 얹히므로, 너무 밝거나 어두운 색은 글씨가 읽히는 범위로
-            명도를 좁혀 적용합니다. 나머지 색(연한 배경·강조·푸터)은 이 색에서 자동으로 만듭니다.
-          </p>
         </div>
+
+        {/* 직접 선택 카드를 고른 동안에만 색상 선택기를 편다 */}
+        {usingCustom && (
+          <div className="mt-4">
+            <ColorPicker value={customHex} onChange={pickCustom} />
+            <div className="max-w-md mt-3 flex items-start gap-2 text-xs text-gray-500">
+              <span
+                className="w-5 h-5 shrink-0 rounded-full border border-black/10"
+                style={{ backgroundColor: appliedPrimary }}
+                aria-hidden="true"
+              />
+              <p className="leading-relaxed">
+                실제 적용되는 대표색은 <strong className="text-gray-700">{appliedPrimary}</strong> 입니다.
+                버튼·푸터에는 흰 글씨가 얹히므로, 너무 밝거나 어두운 색은 글씨가 읽히는 범위로
+                명도를 좁혀 적용합니다. 나머지 색(연한 배경·강조·푸터)은 이 색에서 자동으로 만듭니다.
+              </p>
+            </div>
+          </div>
+        )}
       </fieldset>
 
       {/* 밝기 슬라이더 */}
