@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { BOARD_CATEGORIES } from '@/lib/boardCategories'
 import { useNavMenu } from './NavMenuContext'
@@ -62,6 +62,30 @@ function buildNavItems(
   ]
 }
 
+/**
+ * 열린 메뉴 패널이 화면 아래로 넘치지 않도록 남은 높이만큼만 차지하게 한다.
+ * 패널이 시작하는 위치는 상단 바 노출 여부·스크롤 위치에 따라 달라지므로
+ * CSS 만으로는 계산할 수 없어 직접 재서 넣는다.
+ */
+function useFitToViewport(open: boolean) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const panel = ref.current
+    if (!open || !panel) return
+    const fit = () => {
+      panel.style.maxHeight = `${window.innerHeight - panel.getBoundingClientRect().top}px`
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    window.addEventListener('orientationchange', fit)
+    return () => {
+      window.removeEventListener('resize', fit)
+      window.removeEventListener('orientationchange', fit)
+    }
+  }, [open])
+  return ref
+}
+
 export function Header({
   introPages = [],
   programPages = [],
@@ -94,11 +118,19 @@ export function Header({
     setOpenMenu(null)
   }
 
-  // 전체메뉴가 열려 있을 때 ESC 키로 닫고 배경 스크롤을 막는다.
+  /**
+   * 메뉴(전체메뉴·모바일 메뉴)가 열려 있는 동안 ESC 키로 닫고 배경 스크롤을 막는다.
+   *
+   * 배경을 막지 않으면, 화면보다 긴 메뉴를 스크롤할 때 sticky 헤더 안에 있는
+   * 메뉴 대신 뒤 본문이 먼저 끝까지 밀려 내려간다.
+   */
+  const overlayOpen = allMenuOpen || menuOpen
   useEffect(() => {
-    if (!allMenuOpen) return
+    if (!overlayOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setAllMenuOpen(false)
+      if (e.key !== 'Escape') return
+      setAllMenuOpen(false)
+      setMenuOpen(false)
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -106,9 +138,27 @@ export function Header({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
-    // setAllMenuOpen 은 안정적인 setState 디스패처이므로 deps 에서 제외한다.
+    // setAllMenuOpen·setMenuOpen 은 안정적인 setState 디스패처이므로 deps 에서 제외한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allMenuOpen])
+  }, [overlayOpen])
+
+  /**
+   * 모바일 메뉴를 연 채 화면이 데스크톱 폭이 되면 패널은 CSS(md:hidden)로 사라지는데
+   * 상태는 열린 채라 배경 스크롤만 잠긴 상태로 남는다. 폭이 바뀌면 같이 닫는다.
+   */
+  useEffect(() => {
+    if (!menuOpen) return
+    const closeOnDesktop = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false)
+    }
+    window.addEventListener('resize', closeOnDesktop)
+    return () => window.removeEventListener('resize', closeOnDesktop)
+    // setMenuOpen 은 안정적인 setState 디스패처이므로 deps 에서 제외한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuOpen])
+
+  const mobilePanelRef = useFitToViewport(menuOpen)
+  const megaPanelRef = useFitToViewport(allMenuOpen)
 
   return (
     <header className="bg-white border-b-2 border-primary-darker sticky top-0 z-50">
@@ -221,7 +271,10 @@ export function Header({
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 flex flex-col gap-1">
+        <div
+          ref={mobilePanelRef}
+          className="md:hidden border-t border-gray-100 bg-white px-4 py-3 flex flex-col gap-1 overflow-y-auto overscroll-contain"
+        >
           {navItems.map(item => {
             const active = isActive(item.href)
             return (
@@ -272,7 +325,10 @@ export function Header({
             aria-hidden="true"
           />
           {/* 헤더 바로 아래로 펼쳐지는 패널 */}
-          <div className="hidden md:block absolute top-full inset-x-0 z-50 bg-white border-t border-gray-100 shadow-xl">
+          <div
+            ref={megaPanelRef}
+            className="hidden md:block absolute top-full inset-x-0 z-50 bg-white border-t border-gray-100 shadow-xl overflow-y-auto overscroll-contain"
+          >
             <div
               className="max-w-6xl mx-auto px-6 py-10 grid gap-x-6"
               style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
