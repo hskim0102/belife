@@ -7,6 +7,7 @@ import { FloatingSupportButton } from '@/components/layout/FloatingSupportButton
 import { getPublishedMenuPages } from '@/lib/repositories/menuPages'
 import { getActiveNotification } from '@/lib/repositories/notifications'
 import { getAllPrograms } from '@/lib/repositories/programs'
+import { getActivityTagCounts } from '@/lib/repositories/posts'
 import { sanitizePostBody } from '@/lib/sanitize'
 import { menuPageHref } from '@/lib/menus'
 import type { MenuPage, Program } from '@/lib/types'
@@ -21,6 +22,7 @@ function navChildren(pages: MenuPage[], menu: MenuPage['menu']) {
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   let pages: MenuPage[] = []
   let programs: Program[] = []
+  let newsTags: { tag: string; count: number }[] = []
   let notification = null
   try {
     pages = await getPublishedMenuPages()
@@ -32,6 +34,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     programs = await getAllPrograms()
   } catch {
     // 사업 조회 실패 시 Header 가 '전체 사업' 링크로 대체한다.
+  }
+  try {
+    // '활동소식' 하위 메뉴는 실제로 글이 달린 분류를 구분 관리 순서대로 펼친다.
+    newsTags = await getActivityTagCounts()
+  } catch {
+    // 분류 조회 실패 시 '활동소식'은 하위 메뉴 없이 단일 링크가 된다.
   }
   try {
     const raw = await getActiveNotification()
@@ -57,6 +65,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           ...programs.map(p => ({ label: p.name, href: `/programs/${p.slug}` })),
           ...navChildren(pages, 'programs'),
         ]}
+        newsTags={newsTags.map(t => ({
+          label: t.tag,
+          href: `/news?tag=${encodeURIComponent(t.tag)}`,
+        }))}
       />
       <main>{children}</main>
       <Footer />

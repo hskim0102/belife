@@ -16,8 +16,12 @@ interface NavItem {
   children?: NavChild[]
 }
 
-/** 관리자가 등록한 메뉴 페이지(intro/programs)를 받아 네비게이션을 구성한다. */
-function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavItem[] {
+/** 관리자가 등록한 메뉴 페이지(intro/programs)와 소식 분류를 받아 네비게이션을 구성한다. */
+function buildNavItems(
+  introPages: NavChild[],
+  programPages: NavChild[],
+  newsTags: NavChild[],
+): NavItem[] {
   return [
     {
       label: '아름다운생명사랑은',
@@ -39,6 +43,11 @@ function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavIte
     {
       label: '활동소식',
       href: '/news',
+      // 소식 분류(가정방문·어린이 등)를 사업 소개처럼 펼친다.
+      // 분류가 없거나 조회에 실패하면 하위 메뉴 없이 단일 링크로 둔다.
+      children: newsTags.length
+        ? [{ label: '전체 소식', href: '/news' }, ...newsTags]
+        : undefined,
     },
     {
       label: '게시판',
@@ -56,11 +65,13 @@ function buildNavItems(introPages: NavChild[], programPages: NavChild[]): NavIte
 export function Header({
   introPages = [],
   programPages = [],
+  newsTags = [],
 }: {
   introPages?: NavChild[]
   programPages?: NavChild[]
+  newsTags?: NavChild[]
 }) {
-  const navItems = buildNavItems(introPages, programPages)
+  const navItems = buildNavItems(introPages, programPages, newsTags)
   // 전체메뉴 상태는 TopBar·Footer의 '사이트맵' 버튼과 공유하기 위해 컨텍스트에서 가져온다.
   const {
     mobileOpen: menuOpen,
