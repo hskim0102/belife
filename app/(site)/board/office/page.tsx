@@ -4,9 +4,10 @@ import { redirect } from 'next/navigation'
 import { getOfficeAccess } from '@/lib/auth'
 import { getPostsPage } from '@/lib/repositories/posts'
 import { getBoardCategory } from '@/lib/boardCategories'
+import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
-import { Pagination } from '@/components/ui/Pagination'
+import { BoardListFooter } from '@/components/board/BoardListFooter'
 import { BoardNav } from '@/components/board/BoardNav'
 import { officeLogoutAction } from './office-actions'
 
@@ -19,7 +20,7 @@ const PAGE_SIZE = 12
 export default async function OfficeBoardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string; sf?: string }>
 }) {
   const access = await getOfficeAccess()
   if (!access) redirect('/board/office/login')
@@ -27,14 +28,27 @@ export default async function OfficeBoardPage({
   const cat = getBoardCategory('office')!
   const sp = await searchParams
   const page = Math.max(1, Number(sp.page) || 1)
+  const q = parseSearchQuery(sp.q)
+  const searchField = parseSearchField(sp.sf)
 
   const { posts, total, page: curPage, totalPages } = await getPostsPage({
     category: 'office',
+    q,
+    searchField,
     page,
     pageSize: PAGE_SIZE,
   })
 
-  const href = (p: number) => (p > 1 ? `/board/office?page=${p}` : '/board/office')
+  const href = (p: number) => {
+    const qs = new URLSearchParams()
+    if (q) {
+      qs.set('q', q)
+      if (searchField !== 'all') qs.set('sf', searchField)
+    }
+    if (p > 1) qs.set('page', String(p))
+    const s = qs.toString()
+    return s ? `/board/office?${s}` : '/board/office'
+  }
 
   return (
     <>
@@ -71,9 +85,25 @@ export default async function OfficeBoardPage({
             </div>
           </div>
 
+          {q && (
+            <div className="flex flex-wrap items-center gap-2 mb-8 text-sm text-gray-500">
+              <span>
+                <strong className="text-gray-900">&lsquo;{q}&rsquo;</strong> 검색 결과 {total}건
+              </span>
+              <Link
+                href="/board/office"
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              >
+                검색 취소
+              </Link>
+            </div>
+          )}
+
           {posts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-400 text-lg mb-2">등록된 게시물이 없습니다.</p>
+              <p className="text-gray-400 text-lg mb-2">
+                {q ? '검색 결과가 없습니다.' : '등록된 게시물이 없습니다.'}
+              </p>
             </div>
           ) : (
             <div className="border-t-2 border-gray-900">
@@ -92,11 +122,15 @@ export default async function OfficeBoardPage({
             </div>
           )}
 
-          <Pagination page={curPage} totalPages={totalPages} hrefFor={href} />
-
-          <p className="text-center text-xs text-gray-400 mt-6">
-            총 {total}개 · {curPage}/{totalPages} 페이지
-          </p>
+          <BoardListFooter
+            page={curPage}
+            totalPages={totalPages}
+            total={total}
+            hrefFor={href}
+            searchAction="/board/office"
+            searchField={searchField}
+            searchQuery={q}
+          />
         </div>
       </div>
     </>

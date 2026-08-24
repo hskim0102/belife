@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPostsPage, getBoardTagCounts } from '@/lib/repositories/posts'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
+import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { extractYouTubeId, youTubeThumbnailUrl } from '@/lib/youtube'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
-import { Pagination } from '@/components/ui/Pagination'
+import { BoardListFooter } from '@/components/board/BoardListFooter'
 import { CommentCount } from '@/components/board/CommentCount'
 import { BoardNav } from '@/components/board/BoardNav'
 
@@ -43,7 +44,7 @@ export default async function BoardCategoryPage({
   searchParams,
 }: {
   params: Promise<{ category: string }>
-  searchParams: Promise<{ page?: string; tag?: string }>
+  searchParams: Promise<{ page?: string; tag?: string; q?: string; sf?: string }>
 }) {
   const { category } = await params
   if (!isBoardCategory(category)) notFound()
@@ -51,6 +52,8 @@ export default async function BoardCategoryPage({
 
   const sp = await searchParams
   const page = Math.max(1, Number(sp.page) || 1)
+  const q = parseSearchQuery(sp.q)
+  const searchField = parseSearchField(sp.sf)
 
   // 분류(태그)가 붙은 게시판(자료실 등)은 태그 필터를 함께 보여준다.
   const tagCounts = await getBoardTagCounts(category)
@@ -59,20 +62,28 @@ export default async function BoardCategoryPage({
   const { posts, total, page: curPage, totalPages } = await getPostsPage({
     category,
     tag,
+    q,
+    searchField,
     page,
     pageSize: PAGE_SIZE,
     // 동영상 목록은 본문의 유튜브 링크로 썸네일을 파생하기 위해 본문까지 조회한다.
     includeBody: category === 'video',
   })
 
+  const basePath = `/board/${category}`
   const hrefWith = (next: { tag?: string; page?: number }) => {
     const t = next.tag !== undefined ? next.tag : tag
     const p = next.page ?? curPage
     const qs = new URLSearchParams()
     if (t) qs.set('tag', t)
+    // 검색 중이면 페이지를 넘기거나 분류를 바꿔도 검색 조건을 유지한다.
+    if (q) {
+      qs.set('q', q)
+      if (searchField !== 'all') qs.set('sf', searchField)
+    }
     if (p > 1) qs.set('page', String(p))
     const s = qs.toString()
-    return s ? `/board/${category}?${s}` : `/board/${category}`
+    return s ? `${basePath}?${s}` : basePath
   }
   const buildHref = (p: number) => hrefWith({ page: p })
 
@@ -112,9 +123,27 @@ export default async function BoardCategoryPage({
             </div>
           )}
 
+          {/* 검색 중임을 알리고 한 번에 되돌아갈 수 있게 한다. */}
+          {q && (
+            <div className="flex flex-wrap items-center gap-2 mb-8 text-sm text-gray-500">
+              <span>
+                <strong className="text-gray-900">&lsquo;{q}&rsquo;</strong> 검색 결과 {total}건
+              </span>
+              <Link
+                href={tag ? `${basePath}?tag=${encodeURIComponent(tag)}` : basePath}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              >
+                검색 취소
+              </Link>
+            </div>
+          )}
+
           {posts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-400 text-lg mb-2">등록된 게시물이 없습니다.</p>
+              <p className="text-gray-400 text-lg mb-2">
+                {q ? '검색 결과가 없습니다.' : '등록된 게시물이 없습니다.'}
+              </p>
+              {q && <p className="text-gray-300 text-sm">다른 검색어나 검색 범위로 찾아보세요.</p>}
             </div>
           ) : cat.layout === 'list' ? (
             /* ── 리스트(공지사항) ── */
@@ -176,11 +205,16 @@ export default async function BoardCategoryPage({
             </div>
           )}
 
-          <Pagination page={curPage} totalPages={totalPages} hrefFor={buildHref} />
-
-          <p className="text-center text-xs text-gray-400 mt-6">
-            총 {total}개 · {curPage}/{totalPages} 페이지
-          </p>
+          <BoardListFooter
+            page={curPage}
+            totalPages={totalPages}
+            total={total}
+            hrefFor={buildHref}
+            searchAction={basePath}
+            searchField={searchField}
+            searchQuery={q}
+            searchKeep={{ tag }}
+          />
         </div>
       </div>
     </>

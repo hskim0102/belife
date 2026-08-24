@@ -3,7 +3,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
 import { formatDate } from '@/lib/utils'
+import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { PageHero } from '@/components/ui/PageHero'
+import { BoardListFooter } from '@/components/board/BoardListFooter'
 
 export const metadata: Metadata = { title: '활동소식' }
 export const revalidate = 60
@@ -19,28 +21,10 @@ const gradients = [
   'bg-gradient-to-br from-teal-100 to-cyan-200',
 ]
 
-/** 현재 보고 있는 페이지 주변 + 처음/끝을 포함한 페이지 토큰(숫자 또는 '…') 생성. */
-function pageWindow(current: number, total: number): (number | '…')[] {
-  const span = 2
-  const pages = new Set<number>([1, total])
-  for (let p = current - span; p <= current + span; p++) {
-    if (p >= 1 && p <= total) pages.add(p)
-  }
-  const sorted = [...pages].sort((a, b) => a - b)
-  const out: (number | '…')[] = []
-  let prev = 0
-  for (const p of sorted) {
-    if (p - prev > 1) out.push('…')
-    out.push(p)
-    prev = p
-  }
-  return out
-}
-
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; page?: string }>
+  searchParams: Promise<{ tag?: string; page?: string; q?: string; sf?: string }>
 }) {
   const sp = await searchParams
 
@@ -48,10 +32,14 @@ export default async function NewsPage({
   const tagSet = new Set(tagCounts.map(t => t.tag))
   const tag = sp.tag && tagSet.has(sp.tag) ? sp.tag : undefined
   const page = Math.max(1, Number(sp.page) || 1)
+  const q = parseSearchQuery(sp.q)
+  const searchField = parseSearchField(sp.sf)
 
   const { posts, total, page: curPage, totalPages } = await getPostsPage({
     category: 'activity',
     tag,
+    q,
+    searchField,
     page,
     pageSize: PAGE_SIZE,
   })
@@ -61,6 +49,11 @@ export default async function NewsPage({
     const p = next.page ?? curPage
     const params = new URLSearchParams()
     if (t) params.set('tag', t)
+    // 검색 중이면 페이지·분류를 바꿔도 검색 조건을 유지한다.
+    if (q) {
+      params.set('q', q)
+      if (searchField !== 'all') params.set('sf', searchField)
+    }
     if (p > 1) params.set('page', String(p))
     const qs = params.toString()
     return qs ? `/news?${qs}` : '/news'
@@ -94,6 +87,20 @@ export default async function NewsPage({
                   {tname} <span className="opacity-60">{count}</span>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {q && (
+            <div className="flex flex-wrap items-center gap-2 mb-8 text-sm text-gray-500">
+              <span>
+                <strong className="text-gray-900">&lsquo;{q}&rsquo;</strong> 검색 결과 {total}건
+              </span>
+              <Link
+                href={tag ? `/news?tag=${encodeURIComponent(tag)}` : '/news'}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              >
+                검색 취소
+              </Link>
             </div>
           )}
 
@@ -137,56 +144,26 @@ export default async function NewsPage({
             ))}
             {posts.length === 0 && (
               <div className="col-span-full text-center py-20">
-                <p className="text-gray-400 text-lg mb-2">해당 조건의 활동소식이 없습니다.</p>
-                <p className="text-gray-300 text-sm">다른 분류를 선택해 보세요.</p>
+                <p className="text-gray-400 text-lg mb-2">
+                  {q ? '검색 결과가 없습니다.' : '해당 조건의 활동소식이 없습니다.'}
+                </p>
+                <p className="text-gray-300 text-sm">
+                  {q ? '다른 검색어나 검색 범위로 찾아보세요.' : '다른 분류를 선택해 보세요.'}
+                </p>
               </div>
             )}
           </div>
 
-          {/* 페이지네이션 */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-1 mt-12">
-              {curPage > 1 && (
-                <Link
-                  href={buildHref({ page: curPage - 1 })}
-                  className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-                  aria-label="이전 페이지"
-                >
-                  ←
-                </Link>
-              )}
-              {pageWindow(curPage, totalPages).map((p, idx) =>
-                p === '…' ? (
-                  <span key={`gap-${idx}`} className="w-10 h-10 flex items-center justify-center text-gray-300">
-                    …
-                  </span>
-                ) : (
-                  <Link
-                    key={p}
-                    href={buildHref({ page: p })}
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                      p === curPage ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {p}
-                  </Link>
-                ),
-              )}
-              {curPage < totalPages && (
-                <Link
-                  href={buildHref({ page: curPage + 1 })}
-                  className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-                  aria-label="다음 페이지"
-                >
-                  →
-                </Link>
-              )}
-            </div>
-          )}
-
-          <p className="text-center text-xs text-gray-400 mt-6">
-            총 {total}개 · {curPage}/{totalPages} 페이지
-          </p>
+          <BoardListFooter
+            page={curPage}
+            totalPages={totalPages}
+            total={total}
+            hrefFor={p => buildHref({ page: p })}
+            searchAction="/news"
+            searchField={searchField}
+            searchQuery={q}
+            searchKeep={{ tag }}
+          />
         </div>
       </div>
     </>

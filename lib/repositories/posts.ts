@@ -2,6 +2,7 @@ import 'server-only'
 import type { QueryResultRow } from 'pg'
 import { query, queryOne } from '@/lib/db'
 import type { Post } from '@/lib/types'
+import type { BoardSearchField } from '@/lib/boardSearch'
 
 interface PostRow extends QueryResultRow {
   id: number
@@ -83,6 +84,10 @@ export interface PostsPageParams {
   pageSize?: number
   /** 본문(body)까지 조회. 동영상 목록에서 유튜브 썸네일을 파생할 때만 켠다(기본 false). */
   includeBody?: boolean
+  /** 검색어. 비어 있으면 검색하지 않는다. */
+  q?: string
+  /** 검색 범위(기본 'all' = 제목 + 내용). */
+  searchField?: BoardSearchField
 }
 
 export interface PostsPage {
@@ -91,6 +96,27 @@ export interface PostsPage {
   page: number
   pageSize: number
   totalPages: number
+}
+
+/** 사용자 입력의 LIKE 와일드카드(%, _)를 무력화한 부분일치 패턴. */
+function likePattern(term: string): string {
+  return `%${term.replace(/[\\%_]/g, ch => `\\${ch}`)}%`
+}
+
+/**
+ * 본문 검색 대상 표현식.
+ * body 는 에디터가 만든 HTML 이라 태그를 공백으로 걷어내고 요약(excerpt)과 함께 본다.
+ * (태그를 남겨두면 'p', 'img' 같은 짧은 검색어가 모든 글에 걸린다.)
+ */
+const CONTENT_TEXT = `(coalesce(excerpt, '') || ' ' || regexp_replace(coalesce(body, ''), '<[^>]*>', ' ', 'g'))`
+
+/** 검색 범위에 맞는 WHERE 조건. placeholder 는 이미 likePattern 을 거친 인자. */
+function searchCondition(placeholder: string, field: BoardSearchField): string {
+  const title = `title ILIKE ${placeholder}`
+  const content = `${CONTENT_TEXT} ILIKE ${placeholder}`
+  if (field === 'title') return title
+  if (field === 'body') return content
+  return `(${title} OR ${content})`
 }
 
 /** 카테고리/태그로 필터링하고 페이지 단위로 잘라 게시글을 반환. */
@@ -110,6 +136,11 @@ export async function getPostsPage(params: PostsPageParams = {}): Promise<PostsP
   if (params.tag) {
     args.push([params.tag])
     conds.push(`tags @> $${args.length}`)
+  }
+  const q = params.q?.trim()
+  if (q) {
+    args.push(likePattern(q))
+    conds.push(searchCondition(`$${args.length}`, params.searchField ?? 'all'))
   }
   const where = conds.length ? `WHERE ${conds.join(' AND ')}` : ''
 

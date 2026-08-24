@@ -1,76 +1,87 @@
 import Link from 'next/link'
 
-/** 현재 페이지 주변 + 처음/끝을 포함한 페이지 토큰(숫자 또는 '…') 생성. */
-export function pageWindow(current: number, total: number): (number | '…')[] {
-  const span = 2
-  const pages = new Set<number>([1, total])
-  for (let p = current - span; p <= current + span; p++) {
-    if (p >= 1 && p <= total) pages.add(p)
-  }
-  const sorted = [...pages].sort((a, b) => a - b)
-  const out: (number | '…')[] = []
-  let prev = 0
-  for (const p of sorted) {
-    if (p - prev > 1) out.push('…')
-    out.push(p)
-    prev = p
-  }
-  return out
+/** 한 번에 보여 주는 페이지 번호 개수(1~10, 11~20 …). */
+export const PAGE_BLOCK_SIZE = 10
+
+export interface PageBlock {
+  /** 현재 블록에 그릴 페이지 번호들(예: 11 ~ 20) */
+  pages: number[]
+  /** 이전 블록의 마지막 페이지(없으면 null) */
+  prevBlockPage: number | null
+  /** 다음 블록의 첫 페이지(없으면 null) */
+  nextBlockPage: number | null
 }
 
 /**
+ * 현재 페이지가 속한 10개 단위 블록을 계산한다.
+ * 예) 총 37쪽에서 15쪽을 보고 있으면 11~20 을 그리고 앞뒤 블록 이동점을 알려 준다.
+ */
+export function pageBlock(
+  current: number,
+  total: number,
+  blockSize = PAGE_BLOCK_SIZE,
+): PageBlock {
+  const totalPages = Math.max(1, Math.trunc(total))
+  const page = Math.min(Math.max(1, Math.trunc(current)), totalPages)
+  const start = Math.floor((page - 1) / blockSize) * blockSize + 1
+  const end = Math.min(start + blockSize - 1, totalPages)
+
+  return {
+    pages: Array.from({ length: end - start + 1 }, (_, i) => start + i),
+    prevBlockPage: start > 1 ? start - 1 : null,
+    nextBlockPage: end < totalPages ? end + 1 : null,
+  }
+}
+
+const CELL = 'w-9 h-9 flex items-center justify-center rounded-md text-sm font-semibold transition-colors'
+const ARROW = `${CELL} border border-gray-300 text-gray-500 hover:border-primary hover:text-primary-darker`
+
+/**
  * 게시판 목록 공통 페이지네이션.
+ * 페이지 번호를 10개씩 끊어 보여 주고, 그 앞뒤로만 ‹ › 로 넘어간다.
  * 페이지가 1쪽뿐이면 아무것도 그리지 않는다.
  */
 export function Pagination({
   page,
   totalPages,
   hrefFor,
+  className = '',
 }: {
   page: number
   totalPages: number
-  /** 해당 페이지로 가는 링크(필터 같은 다른 쿼리는 호출 측에서 유지한다) */
+  /** 해당 페이지로 가는 링크(필터·검색 같은 다른 쿼리는 호출 측에서 유지한다) */
   hrefFor: (page: number) => string
+  className?: string
 }) {
   if (totalPages <= 1) return null
+  const { pages, prevBlockPage, nextBlockPage } = pageBlock(page, totalPages)
 
   return (
-    <div className="flex justify-center items-center gap-1 mt-12">
-      {page > 1 && (
-        <Link
-          href={hrefFor(page - 1)}
-          className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-          aria-label="이전 페이지"
-        >
-          ←
+    <nav aria-label="페이지 이동" className={`flex flex-wrap justify-center items-center gap-1 ${className}`}>
+      {prevBlockPage !== null && (
+        <Link href={hrefFor(prevBlockPage)} className={ARROW} aria-label="이전 10페이지">
+          ‹
         </Link>
       )}
-      {pageWindow(page, totalPages).map((p, idx) =>
-        p === '…' ? (
-          <span key={`gap-${idx}`} className="w-10 h-10 flex items-center justify-center text-gray-300">
-            …
-          </span>
-        ) : (
-          <Link
-            key={p}
-            href={hrefFor(p)}
-            className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-              p === page ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {p}
-          </Link>
-        ),
-      )}
-      {page < totalPages && (
+      {pages.map(p => (
         <Link
-          href={hrefFor(page + 1)}
-          className="h-10 px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
-          aria-label="다음 페이지"
+          key={p}
+          href={hrefFor(p)}
+          aria-current={p === page ? 'page' : undefined}
+          className={`${CELL} ${
+            p === page
+              ? 'bg-primary-dark text-white'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-primary-darker'
+          }`}
         >
-          →
+          {p}
+        </Link>
+      ))}
+      {nextBlockPage !== null && (
+        <Link href={hrefFor(nextBlockPage)} className={ARROW} aria-label="다음 10페이지">
+          ›
         </Link>
       )}
-    </div>
+    </nav>
   )
 }
