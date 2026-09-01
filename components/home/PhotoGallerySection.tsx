@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Post } from '@/lib/types'
 import { SectionLabel } from '@/components/ui/SectionLabel'
 import { SectionDivider } from '@/components/ui/SectionDivider'
+import { Reveal } from '@/components/ui/Reveal'
 import { useSwipe } from '@/lib/useSwipe'
 
 /** 한 화면에 보여줄 사진 수 (모바일에서는 2열 2줄로 접힌다) */
@@ -48,13 +49,15 @@ export function PhotoGallerySection({ photos }: { photos: Post[] }) {
       <SectionDivider />
 
       <div className="max-w-6xl mx-auto mt-16">
-        <div className="text-center mb-12">
+        <Reveal effect="blur" className="text-center mb-12">
           <SectionLabel>Photos</SectionLabel>
           <h2 className="text-4xl font-black mb-3 text-gray-900">사진 게시판</h2>
           <p className="text-text-subtle">현장에서 만난 순간들을 사진으로 전합니다</p>
-        </div>
+        </Reveal>
 
-        <div
+        <Reveal
+          effect="zoom"
+          delay={80}
           className="relative"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -125,7 +128,7 @@ export function PhotoGallerySection({ photos }: { photos: Post[] }) {
               </button>
             </>
           )}
-        </div>
+        </Reveal>
 
         {count > 1 && (
           <div className="flex justify-center gap-2 mt-6">
@@ -144,14 +147,14 @@ export function PhotoGallerySection({ photos }: { photos: Post[] }) {
           </div>
         )}
 
-        <div className="text-center mt-12">
+        <Reveal className="text-center mt-12">
           <Link
             href="/board/photo"
             className="inline-flex items-center gap-2 border-2 border-primary text-primary-dark font-bold text-base px-8 py-3 rounded-full hover:bg-primary-light transition-colors"
           >
             사진게시판 전체 보기 <span className="text-lg">→</span>
           </Link>
-        </div>
+        </Reveal>
       </div>
     </section>
   )

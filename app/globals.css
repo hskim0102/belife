@@ -49,3 +49,48 @@
     letter-spacing: -0.02em;
   }
 }
+
+@layer components {
+  /*
+   * 스크롤 등장 애니메이션 (components/ui/Reveal.tsx).
+   * 화면에 들어오면 .reveal-in 이 붙어 최종 상태로 전환된다.
+   */
+  .reveal {
+    opacity: 0;
+    transition-property: opacity, transform, filter;
+    transition-duration: 0.8s;
+    /* 처음엔 빠르게, 끝에서 부드럽게 멈추는 곡선 */
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal-up { transform: translate3d(0, 34px, 0); }
+  .reveal-down { transform: translate3d(0, -34px, 0); }
+  .reveal-left { transform: translate3d(-40px, 0, 0); }
+  .reveal-right { transform: translate3d(40px, 0, 0); }
+  .reveal-zoom { transform: scale(0.94); }
+  .reveal-blur {
+    transform: translate3d(0, 22px, 0);
+    filter: blur(10px);
+  }
+
+  .reveal-in {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    /* 전환이 끝난 뒤에는 합성 레이어를 놓아 준다 */
+    will-change: auto;
+  }
+}
+
+/* 애니메이션을 줄이도록 설정한 사용자에게는 이동 없이 즉시 보여 준다. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

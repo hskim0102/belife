@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSwipe } from '@/lib/useSwipe'
+import { useParallax } from '@/lib/useParallax'
 
 export interface HeroSlideItem {
   src: string
@@ -49,6 +50,8 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
   )
   // 태블릿·모바일 터치 스와이프로 슬라이드 이동
   const swipe = useSwipe(next, prev)
+  // 스크롤에 따라 배경은 천천히 따라오고 문구는 먼저 떠나가는 패럴랙스
+  const { ref: heroRef, offset } = useParallax<HTMLElement>()
 
   // Keep the active index valid if the slide count changes.
   useEffect(() => {
@@ -63,36 +66,52 @@ export function HeroSection({ slides: slidesProp }: { slides?: HeroSlideItem[] }
 
   return (
     <section
+      ref={heroRef}
       className="relative overflow-hidden min-h-[520px] touch-pan-y"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       {...swipe}
     >
-      {/* 슬라이드 트랙 */}
+      {/*
+        패럴랙스 레이어. 위아래 80px 여유를 두고 스크롤량의 15%만 따라 내려오게 해
+        (히어로 높이 520px 기준 최대 78px) 아래쪽이 비지 않는다.
+      */}
       <div
-        data-testid="slide-track"
-        className="flex min-h-[520px] transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateX(-${current * 100}%)` }}
+        className="absolute inset-x-0 -top-20 -bottom-20 will-change-transform"
+        style={{ transform: `translate3d(0, ${offset * 0.15}px, 0)` }}
       >
-        {slides.map((slide, i) => (
-          <div key={i} className="relative min-w-full min-h-[520px] flex-shrink-0">
-            <Image
-              src={slide.src}
-              alt={slide.alt}
-              fill
-              className="object-cover"
-              priority={i === 0}
-              sizes="100vw"
-            />
-          </div>
-        ))}
+        {/* 슬라이드 트랙 */}
+        <div
+          data-testid="slide-track"
+          className="flex h-full transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${current * 100}%)` }}
+        >
+          {slides.map((slide, i) => (
+            <div key={i} className="relative h-full min-w-full flex-shrink-0">
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                fill
+                className="object-cover"
+                priority={i === 0}
+                sizes="100vw"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 텍스트 가독성 그라디언트 */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-transparent pointer-events-none" />
 
-      {/* 텍스트 오버레이 */}
-      <div className="absolute inset-0 flex items-center">
+      {/* 텍스트 오버레이 — 배경보다 빠르게 위로 흐르며 옅어진다 */}
+      <div
+        className="absolute inset-0 flex items-center will-change-transform"
+        style={{
+          transform: `translate3d(0, ${offset * -0.12}px, 0)`,
+          opacity: Math.max(0, 1 - offset / 380),
+        }}
+      >
         <div className="max-w-6xl mx-auto px-6 w-full">
           <div className="max-w-xl">
             <p className="flex items-center gap-2 text-[11px] font-bold text-primary-accent uppercase tracking-widest mb-4">
