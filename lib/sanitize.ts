@@ -1,9 +1,10 @@
 import 'server-only'
 import sanitizeHtml from 'sanitize-html'
+import { cloudinaryUrl } from '@/lib/cloudinary'
 
 // 마이그레이션된 활동소식 본문(레거시 그누보드 cheditor HTML)과
 // 관리자 tiptap 에디터가 만든 본문을 안전하게 렌더링하기 위한 정제기.
-// - <img>(Blob/https) 와 기본 서식 태그는 허용
+// - <img>(Cloudinary/https) 와 기본 서식 태그는 허용
 // - <script>, on*= 이벤트 핸들러, 위험 속성은 제거(sanitize-html 기본 동작)
 // - width/height 속성은 제거해 prose가 반응형으로 크기를 제어하게 함(모바일 넘침 방지)
 //
@@ -60,6 +61,11 @@ const options: sanitizeHtml.IOptions = {
   // 외부 링크 안전화
   transformTags: {
     a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }),
+    // 본문 이미지는 원본(최대 2000px) 대신 Cloudinary 변환본(본문 폭에 맞춘 1200px, 자동 포맷)으로.
+    img: (tagName, attribs) => ({
+      tagName,
+      attribs: attribs.src ? { ...attribs, src: cloudinaryUrl(attribs.src, 1200) } : attribs,
+    }),
   },
 }
 

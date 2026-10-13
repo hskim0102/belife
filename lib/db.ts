@@ -6,14 +6,17 @@ declare global {
 }
 
 function createPool(): Pool | null {
-  const { DATABASE_URL, PG_POOL_MAX } = process.env
+  const { PG_POOL_MAX } = process.env
+  // Prisma Postgres 무료 한도 초과로 Neon 으로 옮겼다. DATABASE_URL 은 Prisma 연동이 관리하는
+  // 값이라 남겨 두고, NEON_DATABASE_URL 이 있으면 그쪽을 쓴다.
+  const DATABASE_URL = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
 
   if (!DATABASE_URL) {
     if (process.env.NODE_ENV !== 'production' || process.env.NEXT_PHASE === 'phase-production-build') {
-      console.warn('[db] DATABASE_URL not set — queries will return empty results.')
+      console.warn('[db] NEON_DATABASE_URL / DATABASE_URL not set — queries will return empty results.')
       return null
     }
-    throw new Error('DATABASE_URL is required')
+    throw new Error('NEON_DATABASE_URL or DATABASE_URL is required')
   }
 
   // Strip sslmode from URL and set ssl option explicitly to suppress pg's

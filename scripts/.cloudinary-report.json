@@ -1,0 +1,43 @@
+{
+  "activity": {
+    "stats": {
+      "total": 1350,
+      "done": 1350,
+      "failed": 0,
+      "bytesIn": 470100656,
+      "bytesOut": 183198487
+    },
+    "failures": []
+  },
+  "board": {
+    "stats": {
+      "total": 2872,
+      "done": 2872,
+      "failed": 0,
+      "bytesIn": 2389284144,
+      "bytesOut": 640262159
+    },
+    "failures": []
+  },
+  "files": {
+    "stats": {
+      "total": 145,
+      "done": 143,
+      "failed": 2,
+      "bytesIn": 93331164,
+      "bytesOut": 93331164
+    },
+    "failures": [
+      {
+        "blobUrl": "https://vabsdd6ao5fpap1d.public.blob.vercel-storage.com/board/files/c68bfe21_%EC%A0%9C38%ED%9A%8C_2026%EB%85%84__%EC%95%84%EC%82%B0%EC%83%81_%EC%B6%94%EC%B2%9C_%EC%95%84%EC%83%9D%EC%82%AC_.hwp",
+        "name": "c68bfe21_제38회_2026년__아산상_추천_아생사_.hwp",
+        "error": "10MB 초과 (16.7MB)"
+      },
+      {
+        "blobUrl": "https://vabsdd6ao5fpap1d.public.blob.vercel-storage.com/board/files/128728b0_2014%EC%B4%9D%ED%9A%8C%EB%B3%B4%EA%B3%A0%EC%84%9C.hwp",
+        "name": "128728b0_2014총회보고서.hwp",
+        "error": "10MB 초과 (16.9MB)"
+      }
+    ]
+  }
+}

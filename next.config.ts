@@ -11,10 +11,10 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: [
-      // Vercel Blob public URLs (uploaded hero slide images).
-      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
-    ],
+    // 업로드 이미지는 Cloudinary 가 변환한다(lib/cloudinary-loader.ts).
+    // Vercel Blob·이미지 최적화 무료 한도 초과로 옮겼다.
+    loader: 'custom',
+    loaderFile: './lib/cloudinary-loader.ts',
   },
 }
 

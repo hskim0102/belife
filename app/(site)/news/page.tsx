@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
 import { formatDate } from '@/lib/utils'
+import { cloudinaryUrl } from '@/lib/cloudinary'
 import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { PageHero } from '@/components/ui/PageHero'
 import { BoardListFooter } from '@/components/board/BoardListFooter'
@@ -110,10 +111,10 @@ export default async function NewsPage({
               <Link key={post.id} href={`/news/${post.slug}`}>
                 <article className="rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 bg-white h-full flex flex-col">
                   {post.thumbnail ? (
-                    // 외부(Blob) 이미지라 next/image 대신 일반 img 사용
+                    // 외부(Cloudinary) 이미지라 next/image 대신 일반 img 사용
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={post.thumbnail}
+                      src={cloudinaryUrl(post.thumbnail, 600)}
                       alt={post.title}
                       loading="lazy"
                       className="h-48 w-full object-cover"

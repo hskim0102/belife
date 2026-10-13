@@ -6,6 +6,7 @@ import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/board
 import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { extractYouTubeId, youTubeThumbnailUrl } from '@/lib/youtube'
 import { formatDate } from '@/lib/utils'
+import { cloudinaryUrl } from '@/lib/cloudinary'
 import { PageHero } from '@/components/ui/PageHero'
 import { BoardListFooter } from '@/components/board/BoardListFooter'
 import { CommentCount } from '@/components/board/CommentCount'
@@ -175,10 +176,10 @@ export default async function BoardCategoryPage({
                 <Link key={post.id} href={`/board/${category}/${post.slug}`}>
                   <article className="rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 bg-white h-full flex flex-col">
                     {thumbnail ? (
-                      // 외부(Blob/YouTube) 이미지라 next/image 대신 일반 img 사용
+                      // 외부(Cloudinary/YouTube) 이미지라 next/image 대신 일반 img 사용
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={thumbnail}
+                        src={cloudinaryUrl(thumbnail, 600)}
                         alt={post.title}
                         loading="lazy"
                         className="h-48 w-full object-cover"

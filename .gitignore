@@ -32,3 +32,5 @@ belife-board-files
 __tests__/
 docs/
 migrations/
+# DB 덤프 백업
+backup/
