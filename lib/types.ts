@@ -43,6 +43,8 @@ export interface Post {
   body: string | null
   /** 분류 태그(활동소식 sca: 가정방문/어린이/마음건강 등). 없으면 빈 배열. */
   tags: string[]
+  /** 댓글 수. 목록 조회(getRecentPosts/getPostsPage)에서만 채워진다. */
+  commentCount?: number
 }
 
 /** 관리자가 메뉴 아래에 등록·수정하는 CMS 페이지. */

@@ -7,7 +7,8 @@ import type { Metadata } from 'next'
 import { PageHero } from '@/components/ui/PageHero'
 
 // 글이 수천 건이라 빌드 타임 전체 정적 생성 대신 ISR(첫 요청 시 생성 후 캐시).
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

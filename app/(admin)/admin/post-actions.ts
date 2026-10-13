@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import { createPost, updatePost, deletePost, getPostById, type PostInput } from '@/lib/repositories/posts'
@@ -68,6 +69,8 @@ function adminPath(category: Post['category']): string {
 
 /** 게시글 변경 시 영향받는 공개 경로 + 관리 경로 재검증 */
 function refresh(category: Post['category'], slug?: string): void {
+  // 목록·분류 캐시(lib/cache.ts)
+  updateTag(CACHE_TAGS.posts)
   revalidatePath('/admin/posts')
   revalidatePath('/admin/news')
   revalidatePath('/', 'page')

@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import { updateThemeSettings } from '@/lib/repositories/theme'
@@ -24,6 +25,7 @@ export async function updateThemeAction(_prev: ThemeFormState, formData: FormDat
 
   await updateThemeSettings(color, clampBrightness(rawBrightness))
   // 테마는 루트 레이아웃에서 주입되므로 전체 레이아웃을 갱신한다.
+  updateTag(CACHE_TAGS.theme)
   revalidatePath('/', 'layout')
   return { saved: true }
 }

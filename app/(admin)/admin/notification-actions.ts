@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import {
@@ -46,6 +47,7 @@ async function requireAuth(): Promise<void> {
 }
 
 function refresh(): void {
+  updateTag(CACHE_TAGS.notification)
   revalidatePath('/admin/notifications')
   revalidatePath('/', 'layout')
 }

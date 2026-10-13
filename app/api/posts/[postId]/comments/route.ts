@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCommentsByPostId, createComment } from '@/lib/repositories/comments'
+import { getCommentsByPostId, createComment, type Comment } from '@/lib/repositories/comments'
 import { getPostById } from '@/lib/repositories/posts'
+
+/** 공개 응답에는 비밀번호(삭제용)와 작성자 이메일을 싣지 않는다. */
+function toPublic({ id, post_id, author, content, created_at, updated_at }: Comment) {
+  return { id, post_id, author, content, created_at, updated_at }
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +20,7 @@ export async function GET(
     }
 
     const comments = await getCommentsByPostId(id)
-    return NextResponse.json(comments)
+    return NextResponse.json(comments.map(toPublic))
   } catch (error) {
     console.error('Failed to fetch comments:', error)
     return NextResponse.json({ error: '댓글을 불러올 수 없습니다.' }, { status: 500 })
@@ -61,7 +66,7 @@ export async function POST(
       return NextResponse.json({ error: '댓글을 작성할 수 없습니다.' }, { status: 500 })
     }
 
-    return NextResponse.json(comment, { status: 201 })
+    return NextResponse.json(toPublic(comment), { status: 201 })
   } catch (error) {
     console.error('Failed to create comment:', error)
     return NextResponse.json({ error: '댓글을 작성할 수 없습니다.' }, { status: 500 })

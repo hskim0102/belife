@@ -1,7 +1,7 @@
 // app/news/page.tsx — 소식(활동소식) 목록. 공지사항·사진게시판 등은 /board 소관.
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getPostsPage, getActivityTagCounts } from '@/lib/repositories/posts'
+import { getCachedPostsPage, getCachedActivityTagCounts } from '@/lib/cache'
 import { formatDate } from '@/lib/utils'
 import { cloudinaryUrl } from '@/lib/cloudinary'
 import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
@@ -9,7 +9,8 @@ import { PageHero } from '@/components/ui/PageHero'
 import { BoardListFooter } from '@/components/board/BoardListFooter'
 
 export const metadata: Metadata = { title: '활동소식' }
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 const PAGE_SIZE = 12
 
@@ -29,14 +30,14 @@ export default async function NewsPage({
 }) {
   const sp = await searchParams
 
-  const tagCounts = await getActivityTagCounts()
+  const tagCounts = await getCachedActivityTagCounts()
   const tagSet = new Set(tagCounts.map(t => t.tag))
   const tag = sp.tag && tagSet.has(sp.tag) ? sp.tag : undefined
   const page = Math.max(1, Number(sp.page) || 1)
   const q = parseSearchQuery(sp.q)
   const searchField = parseSearchField(sp.sf)
 
-  const { posts, total, page: curPage, totalPages } = await getPostsPage({
+  const { posts, total, page: curPage, totalPages } = await getCachedPostsPage({
     category: 'activity',
     tag,
     q,

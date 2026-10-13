@@ -6,7 +6,8 @@ import type { Member } from '@/lib/types'
 
 export const metadata: Metadata = { title: '함께하는 사람들' }
 
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 /** 구분이 늘어나도 색이 모자라지 않도록 순서대로 돌려 쓴다. */
 const groupPalette = [

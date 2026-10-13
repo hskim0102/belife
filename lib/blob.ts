@@ -46,7 +46,10 @@ async function uploadToCloudinary(
   publicId: string,
   resourceType: 'image' | 'raw',
 ): Promise<{ url: string; pathname: string }> {
-  const params = { public_id: publicId, timestamp: String(Math.floor(Date.now() / 1000)) }
+  const params: Record<string, string> = { public_id: publicId, timestamp: String(Math.floor(Date.now() / 1000)) }
+  // 이미지는 저장 전에 긴 변 2000px 이하로 줄인다(incoming transformation). 원본 그대로 쌓으면
+  // 무료 저장 용량을 빨리 쓰고, 화면에는 어차피 최대 1920px 까지만 쓰인다.
+  if (resourceType === 'image') params.transformation = 'c_limit,w_2000,h_2000'
   const form = new FormData()
   form.append('file', file)
   for (const [k, v] of Object.entries(params)) form.append(k, v)

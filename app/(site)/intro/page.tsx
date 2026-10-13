@@ -4,7 +4,8 @@ import { getMenuPageBySlug } from '@/lib/repositories/menuPages'
 import { sanitizePostBody } from '@/lib/sanitize'
 
 export const metadata: Metadata = { title: '기관 소개' }
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 // 마이그레이션(006_menu_pages.sql) 이전 DB 를 위한 폴백 본문.
 // 평소에는 관리자 > 메뉴 페이지에서 수정하는 menu_pages(slug='intro') 내용이 렌더링된다.

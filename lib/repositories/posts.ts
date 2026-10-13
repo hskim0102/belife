@@ -14,7 +14,14 @@ interface PostRow extends QueryResultRow {
   excerpt: string | null
   body: string | null
   tags: string[] | null
+  comment_count?: number
 }
+
+/**
+ * 목록용 댓글 수. 예전에는 화면이 카드마다 /api/posts/:id/comments 를 따로 불러 세었는데
+ * (첫 화면만 18번), 목록 쿼리에 함께 실어 DB 왕복을 한 번으로 줄인다.
+ */
+const COMMENT_COUNT = `(SELECT count(*)::int FROM comments c WHERE c.post_id = posts.id) AS comment_count`
 
 function toPost(row: PostRow): Post {
   return {
@@ -27,6 +34,7 @@ function toPost(row: PostRow): Post {
     excerpt: row.excerpt,
     body: row.body,
     tags: row.tags ?? [],
+    ...(row.comment_count !== undefined ? { commentCount: row.comment_count } : {}),
   }
 }
 
@@ -38,7 +46,7 @@ export async function getRecentPosts(
   const where = categories?.length ? `WHERE category = ANY($2)` : ''
   const args: unknown[] = categories?.length ? [safeLimit, categories] : [safeLimit]
   const rows = await query<PostRow>(
-    `SELECT id, slug, title, category, published_at, thumbnail, excerpt, NULL::text AS body, tags
+    `SELECT id, slug, title, category, published_at, thumbnail, excerpt, NULL::text AS body, tags, ${COMMENT_COUNT}
        FROM posts
        ${where}
        ORDER BY published_at DESC
@@ -144,23 +152,29 @@ export async function getPostsPage(params: PostsPageParams = {}): Promise<PostsP
   }
   const where = conds.length ? `WHERE ${conds.join(' AND ')}` : ''
 
-  const totalRows = await query<{ n: number }>(
-    `SELECT count(*)::int AS n FROM posts ${where}`,
-    args,
-  )
-  const total = totalRows[0]?.n ?? 0
-  const totalPages = Math.max(1, Math.ceil(total / pageSize))
-  const safePage = Math.min(page, totalPages)
-  const offset = (safePage - 1) * pageSize
-
+  // 전체 건수는 윈도 함수로 같은 쿼리에서 함께 받는다(쿼리 2번 → 1번).
   const bodySelect = params.includeBody ? 'body' : 'NULL::text AS body'
-  const rows = await query<PostRow>(
-    `SELECT id, slug, title, category, published_at, thumbnail, excerpt, ${bodySelect}, tags
-       FROM posts ${where}
-       ORDER BY published_at DESC
-       LIMIT $${args.length + 1} OFFSET $${args.length + 2}`,
-    [...args, pageSize, offset],
-  )
+  const fetchPage = (offset: number) =>
+    query<PostRow & { total: number }>(
+      `SELECT id, slug, title, category, published_at, thumbnail, excerpt, ${bodySelect}, tags,
+              ${COMMENT_COUNT}, count(*) OVER ()::int AS total
+         FROM posts ${where}
+         ORDER BY published_at DESC
+         LIMIT $${args.length + 1} OFFSET $${args.length + 2}`,
+      [...args, pageSize, offset],
+    )
+
+  let rows = await fetchPage((page - 1) * pageSize)
+  let total = rows[0]?.total ?? 0
+  let safePage = page
+  if (rows.length === 0 && page > 1) {
+    // 범위를 넘은 페이지: 건수를 따로 세어 마지막 페이지를 보여준다(드문 경우).
+    const totalRows = await query<{ n: number }>(`SELECT count(*)::int AS n FROM posts ${where}`, args)
+    total = totalRows[0]?.n ?? 0
+    safePage = Math.max(1, Math.ceil(total / pageSize))
+    if (total > 0) rows = await fetchPage((safePage - 1) * pageSize)
+  }
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   return { posts: rows.map(toPost), total, page: safePage, pageSize, totalPages }
 }

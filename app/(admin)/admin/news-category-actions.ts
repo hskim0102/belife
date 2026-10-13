@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import {
@@ -17,6 +18,9 @@ async function requireAuth(): Promise<void> {
 }
 
 function refresh(): void {
+  // 활동소식 분류 순서는 헤더 하위 메뉴와 /news 탭에 쓰인다.
+  updateTag(CACHE_TAGS.posts)
+  revalidatePath('/', 'layout')
   revalidatePath('/admin/news')
   revalidatePath('/admin/news/categories')
   revalidatePath('/news')

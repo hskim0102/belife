@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { getThemeSettings } from '@/lib/repositories/theme'
+import { getCachedThemeSettings } from '@/lib/cache'
 import { DEFAULT_BRIGHTNESS, DEFAULT_THEME, themeCss, type ThemeColor } from '@/lib/theme'
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   let theme: ThemeColor = DEFAULT_THEME
   let brightness = DEFAULT_BRIGHTNESS
   try {
-    const settings = await getThemeSettings()
+    const settings = await getCachedThemeSettings()
     theme = settings.color
     brightness = settings.brightness
   } catch {

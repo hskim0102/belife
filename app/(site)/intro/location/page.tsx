@@ -5,7 +5,8 @@ import { sanitizePostBody } from '@/lib/sanitize'
 
 export const metadata: Metadata = { title: '오시는 길' }
 
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 /** 관리자가 입력한 안내 본문(HTML)을 담는 카드. 내용이 없으면 렌더링하지 않는다. */
 function BodyCard({ html }: { html: string }) {

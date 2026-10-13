@@ -4,7 +4,8 @@ import { PageHero } from '@/components/ui/PageHero'
 import { getMenuPageBySlug } from '@/lib/repositories/menuPages'
 import { sanitizePostBody } from '@/lib/sanitize'
 
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import {
@@ -43,6 +44,7 @@ async function requireAuth(): Promise<void> {
 
 /** 메뉴 페이지 변경 시 네비게이션(전 페이지)과 해당 공개 경로 재검증 */
 function refresh(menu: MenuKey, slug?: string): void {
+  updateTag(CACHE_TAGS.menu)
   revalidatePath('/admin/pages')
   // 헤더 네비게이션은 모든 공개 페이지에 들어가므로 레이아웃 단위로 재검증.
   revalidatePath('/', 'layout')

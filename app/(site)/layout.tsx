@@ -4,10 +4,12 @@ import { Footer } from '@/components/layout/Footer'
 import { NavMenuProvider } from '@/components/layout/NavMenuContext'
 import { NotificationPopup } from '@/components/NotificationPopup'
 import { FloatingSupportButton } from '@/components/layout/FloatingSupportButton'
-import { getPublishedMenuPages } from '@/lib/repositories/menuPages'
-import { getActiveNotification } from '@/lib/repositories/notifications'
-import { getAllPrograms } from '@/lib/repositories/programs'
-import { getActivityTagCounts } from '@/lib/repositories/posts'
+import {
+  getCachedActiveNotification,
+  getCachedActivityTagCounts,
+  getCachedMenuPages,
+  getCachedPrograms,
+} from '@/lib/cache'
 import { sanitizePostBody } from '@/lib/sanitize'
 import { menuPageHref } from '@/lib/menus'
 import type { MenuPage, Program } from '@/lib/types'
@@ -25,24 +27,24 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   let newsTags: { tag: string; count: number }[] = []
   let notification = null
   try {
-    pages = await getPublishedMenuPages()
+    pages = await getCachedMenuPages()
   } catch {
     // 네비게이션 조회 실패가 사이트 전체를 막지 않도록 기본 메뉴로 렌더링.
   }
   try {
     // '사업 소개' 하위 메뉴는 등록된 사업(정렬 순서대로)을 그대로 펼쳐 보여준다.
-    programs = await getAllPrograms()
+    programs = await getCachedPrograms()
   } catch {
     // 사업 조회 실패 시 Header 가 '전체 사업' 링크로 대체한다.
   }
   try {
     // '활동소식' 하위 메뉴는 실제로 글이 달린 분류를 구분 관리 순서대로 펼친다.
-    newsTags = await getActivityTagCounts()
+    newsTags = await getCachedActivityTagCounts()
   } catch {
     // 분류 조회 실패 시 '활동소식'은 하위 메뉴 없이 단일 링크가 된다.
   }
   try {
-    const raw = await getActiveNotification()
+    const raw = await getCachedActiveNotification()
     if (raw) {
       // 서버에서 sanitize해서 클라이언트로 전달
       notification = {

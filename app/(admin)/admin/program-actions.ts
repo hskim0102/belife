@@ -1,6 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/cache'
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/auth'
 import {
@@ -59,8 +60,10 @@ async function requireAuth(): Promise<void> {
 }
 
 function refresh(slug?: string): void {
+  updateTag(CACHE_TAGS.programs)
   revalidatePath('/admin/programs')
-  revalidatePath('/', 'page')
+  // 사업 목록은 헤더 하위 메뉴로 모든 공개 페이지에 들어가므로 레이아웃 단위로 재검증.
+  revalidatePath('/', 'layout')
   revalidatePath('/programs')
   if (slug) revalidatePath(`/programs/${slug}`)
 }

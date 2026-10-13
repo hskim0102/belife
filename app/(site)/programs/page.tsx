@@ -1,12 +1,13 @@
 ﻿// app/programs/page.tsx
 import type { Metadata } from 'next'
-import { getAllPrograms } from '@/lib/repositories/programs'
+import { getCachedPrograms } from '@/lib/cache'
 import { ProgramsListClient } from './ProgramsListClient'
 import { PageHero } from '@/components/ui/PageHero'
 
 export const metadata: Metadata = { title: '사업 소개' }
 
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 export default async function ProgramsPage({
   searchParams,
@@ -14,7 +15,7 @@ export default async function ProgramsPage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category } = await searchParams
-  const programs = await getAllPrograms()
+  const programs = await getCachedPrograms()
   const initialCategory =
     category === 'domestic' || category === 'overseas' || category === 'education' ? category : 'all'
   return (

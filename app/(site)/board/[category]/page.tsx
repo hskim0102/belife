@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPostsPage, getBoardTagCounts } from '@/lib/repositories/posts'
+import { getCachedPostsPage, getCachedBoardTagCounts } from '@/lib/cache'
 import { getBoardCategory, BOARD_CATEGORIES, isBoardCategory } from '@/lib/boardCategories'
 import { parseSearchField, parseSearchQuery } from '@/lib/boardSearch'
 import { extractYouTubeId, youTubeThumbnailUrl } from '@/lib/youtube'
@@ -12,7 +12,8 @@ import { BoardListFooter } from '@/components/board/BoardListFooter'
 import { CommentCount } from '@/components/board/CommentCount'
 import { BoardNav } from '@/components/board/BoardNav'
 
-export const revalidate = 60
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
+export const revalidate = 3600
 
 const PAGE_SIZE = 12
 
@@ -57,10 +58,10 @@ export default async function BoardCategoryPage({
   const searchField = parseSearchField(sp.sf)
 
   // 분류(태그)가 붙은 게시판(자료실 등)은 태그 필터를 함께 보여준다.
-  const tagCounts = await getBoardTagCounts(category)
+  const tagCounts = await getCachedBoardTagCounts(category)
   const tag = sp.tag && tagCounts.some(t => t.tag === sp.tag) ? sp.tag : undefined
 
-  const { posts, total, page: curPage, totalPages } = await getPostsPage({
+  const { posts, total, page: curPage, totalPages } = await getCachedPostsPage({
     category,
     tag,
     q,
@@ -157,7 +158,7 @@ export default async function BoardCategoryPage({
                 >
                   <span className="flex-1 min-w-0 truncate font-medium text-gray-900">{post.title}</span>
                   <div className="shrink-0 flex items-center gap-3">
-                    <CommentCount postId={post.id} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded" />
+                    <CommentCount count={post.commentCount} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded" />
                     <span className="text-sm text-gray-400 w-24 text-right">
                       {formatDate(post.publishedAt)}
                     </span>
@@ -192,7 +193,7 @@ export default async function BoardCategoryPage({
                     <div className="p-5 flex flex-col flex-1">
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <span className="text-xs text-gray-400">{formatDate(post.publishedAt)}</span>
-                        <CommentCount postId={post.id} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded whitespace-nowrap" />
+                        <CommentCount count={post.commentCount} className="text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded whitespace-nowrap" />
                       </div>
                       <h2 className="font-bold text-[15px] text-gray-900 leading-snug line-clamp-2">{post.title}</h2>
                       {post.excerpt && (

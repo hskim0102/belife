@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { Post } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 
@@ -15,7 +15,6 @@ interface NoticePanelProps {
 
 export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('공지사항')
-  const [commentCounts, setCommentCounts] = useState<Record<number, number>>({})
 
   const items = {
     '공지사항': noticePost,
@@ -24,30 +23,6 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
   }
 
   const currentItems = items[activeTab]
-
-  useEffect(() => {
-    // 모든 게시물의 댓글 수 한 번에 불러오기
-    const loadCommentCounts = async () => {
-      const counts: Record<number, number> = {}
-      const allPosts = [...noticePost, ...newsPost, ...pressPost]
-
-      for (const post of allPosts) {
-        try {
-          const response = await fetch(`/api/posts/${post.id}/comments`)
-          if (response.ok) {
-            const comments = await response.json()
-            counts[post.id] = comments.length
-          }
-        } catch (err) {
-          console.error(`Failed to load comments for post ${post.id}:`, err)
-        }
-      }
-
-      setCommentCounts(counts)
-    }
-
-    loadCommentCounts()
-  }, [noticePost, newsPost, pressPost])
 
   const isToday = (dateStr: string) => {
     const today = new Date().toISOString().split('T')[0]
@@ -91,9 +66,9 @@ export function NoticePanel({ noticePost, newsPost, pressPost }: NoticePanelProp
                     {item.title}
                     {isToday(item.publishedAt) && <span className="ml-1.5 text-[10px] font-bold text-red-500">N</span>}
                   </p>
-                  {(commentCounts[item.id] ?? 0) > 0 && (
+                  {(item.commentCount ?? 0) > 0 && (
                     <span className="flex-shrink-0 text-xs font-semibold text-primary-darker bg-primary-light px-2 py-0.5 rounded">
-                      댓글 {commentCounts[item.id]}
+                      댓글 {item.commentCount}
                     </span>
                   )}
                 </div>

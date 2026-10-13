@@ -1,32 +1,11 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-
 interface CommentCountProps {
-  postId: number
+  /** 목록 쿼리가 함께 실어 온 댓글 수(post.commentCount). */
+  count?: number
   className?: string
 }
 
-export function CommentCount({ postId, className = '' }: CommentCountProps) {
-  const [count, setCount] = useState<number | null>(null)
-
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const response = await fetch(`/api/posts/${postId}/comments`)
-        if (response.ok) {
-          const comments = await response.json()
-          setCount(comments.length)
-        }
-      } catch (err) {
-        console.error(`Failed to load comment count for post ${postId}:`, err)
-      }
-    }
-
-    fetchCount()
-  }, [postId])
-
-  if (count === null || count === 0) return null
-
+// 예전에는 카드마다 /api/posts/:id/comments 를 불러 세었다. 목록 쿼리에서 받은 값을 그대로 쓴다.
+export function CommentCount({ count, className = '' }: CommentCountProps) {
+  if (!count) return null
   return <span className={className}>댓글 {count}</span>
 }
