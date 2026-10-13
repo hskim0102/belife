@@ -29,6 +29,7 @@ node_modules
 belife-activity-images
 belife-board-images
 belife-board-files
+belife-recovered
 __tests__/
 docs/
 migrations/
