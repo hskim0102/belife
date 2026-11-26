@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
+import { commentsTag } from '@/lib/cache'
 import { getComment, deleteComment } from '@/lib/repositories/comments'
 
 export async function DELETE(
@@ -30,6 +32,7 @@ export async function DELETE(
       return NextResponse.json({ error: '비밀번호가 일치하지 않습니다.' }, { status: 401 })
     }
 
+    revalidateTag(commentsTag(comment.post_id), { expire: 0 })
     return NextResponse.json({ message: '댓글이 삭제되었습니다.' })
   } catch (error) {
     console.error('Failed to delete comment:', error)

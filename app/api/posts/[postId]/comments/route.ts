@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCommentsByPostId, createComment, type Comment } from '@/lib/repositories/comments'
+import { revalidateTag } from 'next/cache'
+import { createComment, type Comment } from '@/lib/repositories/comments'
+import { getCachedComments, commentsTag } from '@/lib/cache'
 import { getPostById } from '@/lib/repositories/posts'
 
 /** 공개 응답에는 비밀번호(삭제용)와 작성자 이메일을 싣지 않는다. */
@@ -19,7 +21,8 @@ export async function GET(
       return NextResponse.json({ error: '유효한 게시물 ID가 아닙니다.' }, { status: 400 })
     }
 
-    const comments = await getCommentsByPostId(id)
+    // 글을 열 때마다 호출되므로 캐시한다(작성·삭제 시에만 비움).
+    const comments = await getCachedComments(id)
     return NextResponse.json(comments.map(toPublic))
   } catch (error) {
     console.error('Failed to fetch comments:', error)
@@ -66,6 +69,7 @@ export async function POST(
       return NextResponse.json({ error: '댓글을 작성할 수 없습니다.' }, { status: 500 })
     }
 
+    revalidateTag(commentsTag(id), { expire: 0 })
     return NextResponse.json(toPublic(comment), { status: 201 })
   } catch (error) {
     console.error('Failed to create comment:', error)

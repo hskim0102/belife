@@ -1,4 +1,4 @@
-import { getPostBySlug } from '@/lib/repositories/posts'
+import { getCachedPostBySlug } from '@/lib/cache'
 import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { sanitizePostBody } from '@/lib/sanitize'
@@ -10,8 +10,15 @@ import { CommentSection } from '@/components/board/CommentSection'
 import { YouTubeEmbed } from '@/components/board/YouTubeEmbed'
 import { PageHero } from '@/components/ui/PageHero'
 
-// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 길게 둔다.
-export const revalidate = 3600
+// 관리자 화면에서 고치면 revalidatePath·updateTag 로 즉시 갱신되므로, 시간 기반 재생성은 하루로 둔다.
+// (글이 5,600개라 짧게 두면 크롤러가 돌 때마다 DB 가 깨어 무료 컴퓨트 한도를 넘긴다)
+export const revalidate = 86400
+
+// 빈 배열을 돌려줘야 처음 방문할 때 한 번 렌더한 뒤 캐시(ISR)된다. 없으면 요청마다 새로 렌더하는
+// Dynamic 라우트가 되어, 크롤러가 글 5,600개를 돌 때마다 DB 를 깨웠다.
+export function generateStaticParams() {
+  return []
+}
 
 export async function generateMetadata({
   params,
@@ -19,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPostBySlug(slug)
+  const post = await getCachedPostBySlug(slug)
   if (!post) return {}
   return { title: post.title, description: post.excerpt ?? undefined }
 }
@@ -31,7 +38,7 @@ export default async function BoardDetailPage({
 }) {
   const { category, slug } = await params
   if (!isBoardCategory(category)) notFound()
-  const post = await getPostBySlug(slug)
+  const post = await getCachedPostBySlug(slug)
   // slug 는 유니크하지만, 카테고리 경로와 글의 실제 카테고리가 일치해야 정상 URL.
   if (!post || post.category !== category) notFound()
   const cat = getBoardCategory(category)!

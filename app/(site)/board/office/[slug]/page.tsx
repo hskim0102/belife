@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { canViewOffice } from '@/lib/auth'
-import { getPostBySlug } from '@/lib/repositories/posts'
+import { getCachedPostBySlug } from '@/lib/cache'
 import { sanitizePostBody } from '@/lib/sanitize'
 import { formatDate } from '@/lib/utils'
 import { PageHero } from '@/components/ui/PageHero'
@@ -21,7 +21,7 @@ export default async function OfficePostPage({
     redirect(`/board/office/login?next=${encodeURIComponent(`/board/office/${slug}`)}`)
   }
 
-  const post = await getPostBySlug(slug)
+  const post = await getCachedPostBySlug(slug)
   if (!post || post.category !== 'office') notFound()
 
   return (
